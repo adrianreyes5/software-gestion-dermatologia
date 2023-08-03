@@ -12,6 +12,9 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Box, TextField } from "@mui/material";
 
+// styles
+import "./styles.scss";
+
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -26,7 +29,9 @@ export default function AvailableTreatments() {
 
         <Container sx={{ py: 8 }} maxWidth="md">
           <Box my={4} textAlign="center">
-            <Typography variant="h4">Procedimientos disponibles</Typography>
+            <Typography variant="h4" className="text-green">
+              Procedimientos disponibles
+            </Typography>
 
             <TextField
               variant="outlined"
@@ -68,8 +73,12 @@ export default function AvailableTreatments() {
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small">View</Button>
-                    <Button size="small">Edit</Button>
+                    <Button size="small" color="primary" variant="contained">
+                      View
+                    </Button>
+                    <Button size="small" color="info" variant="contained">
+                      Edit
+                    </Button>
                   </CardActions>
                 </Card>
               </Grid>
