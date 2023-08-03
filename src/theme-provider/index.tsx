@@ -7,9 +7,14 @@ export const theme = createTheme({
     },
     secondary: {
       main: "#e8c4c4",
+      contrastText: "#2B3A55",
     },
     info: {
       main: "#2b3a55",
+    },
+    text: {
+      primary: "#2B3A55",
+      secondary: "#2B3A55",
     },
     success: {
       main: "#e8c4c4",
