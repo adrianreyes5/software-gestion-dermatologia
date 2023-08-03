@@ -14,6 +14,9 @@ export const theme = createTheme({
     success: {
       main: "#e8c4c4",
     },
+    background: {
+      paper: "rgba(242,229,229,0.5)",
+    },
   },
 
   components: {
