@@ -7,7 +7,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import HourList from "./hour-list";
+import { hourData } from "@/utils/hour-list";
+import AlertDialog from "./alert-dialog/indext";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -51,17 +54,59 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  date: string;
 };
 
 const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
   open,
   setOpen,
+  date,
 }) => {
+  const [hours, setHours] = React.useState(hourData);
+  const [showAlertDialog, setShowAlertDialog] = React.useState<{
+    title: string;
+    description: string;
+    open: boolean;
+  }>({
+    title: "",
+    description: "",
+    open: false,
+  });
+
+  const selectHours = (
+    hour: { value: string; available: boolean },
+    index: number
+  ) => {
+    // Crea una copia del array original para evitar mutaciones directas
+    const newData = [...hourData];
+
+    const isAvailable =
+      hours[index].available &&
+      hours[index + 1]?.available &&
+      hours[index + 2]?.available;
+
+    console.log(isAvailable);
+    if (isAvailable) {
+      // Actualiza el estado "selected" del elemento seleccionado y los siguientes 2 elementos
+      for (let i = index; i <= index + 2 && i < newData.length; i++) {
+        newData[i] = { ...newData[i], selected: true };
+      }
+    } else {
+      setShowAlertDialog({
+        title: "Hora no disponible",
+        description: "El tiempo del tratamiento es de 3 horas",
+        open: true,
+      });
+    }
+
+    // Actualiza el estado del array con los elementos actualizados
+    setHours([...newData]);
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
-
-  console.log(open)
 
   return (
     <div>
@@ -69,36 +114,54 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
+        fullWidth
+        maxWidth="xs"
       >
         <BootstrapDialogTitle
           id="customized-dialog-title"
           onClose={handleClose}
         >
-          Modal title
+          {date}
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-            ac consectetur ac, vestibulum at eros.
-          </Typography>
-          <Typography gutterBottom>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-            auctor.
-          </Typography>
-          <Typography gutterBottom>
-            Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-            cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
-            dui. Donec ullamcorper nulla non metus auctor fringilla.
-          </Typography>
+          <Box width="100%">
+            <HourList
+              treatmentHours={2}
+              hours={hours}
+              selectHours={selectHours}
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            Save changes
-          </Button>
+          <Box padding={1} display="flex" alignItems="center">
+            <Box mx={1}>
+              <Button autoFocus onClick={handleClose}>
+                Cerrar
+              </Button>
+            </Box>
+            <Box mx={1}>
+              <Button autoFocus onClick={handleClose} variant="contained">
+                Guardar
+              </Button>
+            </Box>
+          </Box>
         </DialogActions>
       </BootstrapDialog>
+
+      {showAlertDialog.open && (
+        <AlertDialog
+          description={showAlertDialog.description}
+          open={showAlertDialog.open}
+          setOpen={() =>
+            setShowAlertDialog({
+              title: "",
+              description: "",
+              open: false,
+            })
+          }
+          title={showAlertDialog.title}
+        />
+      )}
     </div>
   );
 };
