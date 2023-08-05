@@ -1,0 +1,41 @@
+// Variables
+$primary-color: #ce7777;
+$secondary-color: #e8c4c4;
+$light-color: #e8c4c4;
+$dark-color: #2b3a55;
+
+$font-small: 400;
+$font-bold: 600;
+
+// General css
+body {
+    margin: 0;
+}
+
+// text colors
+.text-primary {
+    color: $primary-color;
+}
+.text-secondary {
+    color: $secondary-color;
+}
+.text-light {
+    color: $light-color;
+}
+.text-dark {
+    color: $dark-color;
+}
+
+// background colors
+.bg-primary {
+    background-color: $primary-color;
+}
+.bg-secondary {
+    background-color: $secondary-color;
+}
+.bg-light {
+    background-color: $light-color;
+}
+.bg-dark {
+    background-color: $dark-color;
+}

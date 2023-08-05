@@ -1,7 +1,5 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
-import CameraIcon from "@mui/icons-material/PhotoCamera";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -27,9 +25,9 @@ export default function AvailableTreatments() {
       <main>
         {/* Hero unit */}
 
-        <Container sx={{ py: 8 }} maxWidth="md">
-          <Box my={4} textAlign="center">
-            <Typography variant="h4" className="text-green">
+        <Container sx={{ py: 5 }} maxWidth="md">
+          <Box mb={4} textAlign="center">
+            <Typography variant="h4" color="primary">
               Procedimientos disponibles
             </Typography>
 
@@ -53,6 +51,7 @@ export default function AvailableTreatments() {
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
+                    paddingBottom: "15px"
                   }}
                 >
                   <CardMedia
@@ -64,7 +63,7 @@ export default function AvailableTreatments() {
                     image="https://source.unsplash.com/random?wallpapers"
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h5" component="h2">
+                    <Typography gutterBottom variant="h5" component="h2" color="primary">
                       Heading
                     </Typography>
                     <Typography>
@@ -72,11 +71,11 @@ export default function AvailableTreatments() {
                       the content.
                     </Typography>
                   </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary" variant="contained">
+                  <CardActions sx={{ padding: "0 15px" }}>
+                    <Button size="small" color="primary" variant="contained" href="/treatments/details">
                       View
                     </Button>
-                    <Button size="small" color="info" variant="contained">
+                    <Button size="small" color="primary" variant="outlined" href="/treatments/edit">
                       Edit
                     </Button>
                   </CardActions>
