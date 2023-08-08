@@ -12,12 +12,29 @@ import { Box, TextField } from "@mui/material";
 
 // styles
 import "./styles.scss";
+import Axios from "@/config/interceptor";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 export default function AvailableTreatments() {
+  React.useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await Axios.post("https://jsonplaceholder.typicode.com/users"); // Replace with your API endpoint
+
+        // Handle the response data here
+        console.log(response.data);
+      } catch (error) {
+        // Handle the error here
+        console.error(error);
+      }
+    };
+
+    getData();
+  }, []);
+
   return (
     <>
       <CssBaseline />
@@ -51,7 +68,7 @@ export default function AvailableTreatments() {
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
-                    paddingBottom: "15px"
+                    paddingBottom: "15px",
                   }}
                 >
                   <CardMedia
@@ -63,7 +80,12 @@ export default function AvailableTreatments() {
                     image="https://source.unsplash.com/random?wallpapers"
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h5" component="h2" color="primary">
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="h2"
+                      color="primary"
+                    >
                       Heading
                     </Typography>
                     <Typography>
@@ -72,10 +94,20 @@ export default function AvailableTreatments() {
                     </Typography>
                   </CardContent>
                   <CardActions sx={{ padding: "0 15px" }}>
-                    <Button size="small" color="primary" variant="contained" href="/treatments/details">
+                    <Button
+                      size="small"
+                      color="primary"
+                      variant="contained"
+                      href="/treatments/details"
+                    >
                       View
                     </Button>
-                    <Button size="small" color="primary" variant="outlined" href="/treatments/edit">
+                    <Button
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      href="/treatments/edit"
+                    >
                       Edit
                     </Button>
                   </CardActions>
