@@ -1,127 +1,240 @@
+import { useRouter } from "next/router";
+
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import { Box, TextField, Paper } from "@mui/material";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 
 import "./styles.scss";
+import React from "react";
+import { handleError } from "@/utils/response-handler";
+import { MessageResponse } from "@/utils/types";
+
+import axios from "../../src/config/interceptor";
+import LoadingButton from "@/components/loadingButton";
+import SnackBar from "@/components/snackbar";
+
+import { setCookie } from "cookies-next";
+
+const schema = yup
+  .object({
+    first_name: yup.string().required("Nombre es requerido"),
+    last_name: yup.string().required("Apellido es requerido"),
+    phone: yup.string().required("Teléfono es requerido"),
+    address: yup.string().required("Dirección es requerido"),
+    birthday: yup.string().required("Fecha de nacimiento es requerido"),
+    email: yup
+      .string()
+      .email("Debe ser un correo electronico valido")
+      .required("El correo es requerido"),
+    password: yup.string().required("La contraseña es requerida"),
+    confirm_password: yup
+      .string()
+      .required("Confirmar contraseña es requerido")
+      .oneOf([yup.ref("password")], "La contraseña no coincide"),
+  })
+  .required();
+
+type FormData = yup.InferType<typeof schema>;
 
 export default function Register() {
+  const router = useRouter();
+  const [loading, setLoading] = React.useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+  });
+
+  const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
+    message: "",
+    open: false,
+    type: "success",
+  });
+
+  const onSubmit = async (formData: FormData) => {
+    setLoading(true);
+
+    try {
+      const response = await axios.post("register", formData);
+
+      if (handleError(response.status)) {
+        throw new Error(response.data?.message);
+      }
+
+      const { data } = response.data;
+
+      setCookie("token", data?.token);
+
+      setSnackbarState({
+        open: true,
+        type: "success",
+        message: "Registrado exitosamente",
+      });
+
+      router.push("/treatments");
+    } catch (error: any) {
+      setSnackbarState({
+        open: true,
+        type: "error",
+        message: error?.message as string,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main>
       <>
-        {" "}
         <CssBaseline />
         <Container component="main" maxWidth="sm">
           <Grid container spacing={2} mt={5}>
             <Grid item xs={12} sm={12}>
-              <Paper sx={{ padding: "20px"}} >
-                <AccountCircleIcon sx={{ display: 'flex', width: '100%', height: '150px' }} color="primary" />
-                <form noValidate>
-                  <Box sx={{ display: 'flex', gap: '15px'}}>
+              <Paper sx={{ padding: "20px" }}>
+                <AccountCircleIcon
+                  sx={{ display: "flex", width: "100%", height: "150px" }}
+                  color="primary"
+                />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Box sx={{ display: "flex", gap: "15px" }}>
                     <TextField
                       variant="outlined"
                       margin="normal"
-                      required
                       fullWidth
-                      id="name"
+                      id="first_name"
                       label="Nombre"
-                      name="name"
                       type="text"
                       autoComplete="Jhon"
+                      {...register("first_name")}
+                      error={!!errors?.first_name?.message}
+                      helperText={errors?.first_name?.message}
                     />
                     <TextField
                       variant="outlined"
                       margin="normal"
-                      required
                       fullWidth
-                      name="last-name"
                       label="Apellido"
                       type="text"
-                      id="last-name"
+                      id="last_name"
                       autoComplete="Doe"
+                      {...register("last_name")}
+                      error={!!errors?.last_name?.message}
+                      helperText={errors?.last_name?.message}
                     />
                   </Box>
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
                     id="email"
                     label="Correo electrónico"
-                    name="email"
                     autoComplete="email"
                     type="email"
                     autoFocus
+                    {...register("email")}
+                    error={!!errors?.email?.message}
+                    helperText={errors?.email?.message}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
-                    id="phone-number"
+                    id="phone"
                     label="Nro de teléfono"
-                    name="phone-number"
                     autoComplete="+12345678"
+                    {...register("phone")}
+                    error={!!errors?.phone?.message}
+                    helperText={errors?.phone?.message}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
                     id="address"
                     label="Dirección"
-                    name="address"
                     autoComplete="Example address"
+                    {...register("address")}
+                    error={!!errors?.address?.message}
+                    helperText={errors?.address?.message}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
                     id="date"
                     label="Fecha de nacimiento"
-                    name="date"
                     autoComplete="11/05/2000"
+                    {...register("birthday")}
+                    error={!!errors?.birthday?.message}
+                    helperText={errors?.birthday?.message}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
-                    name="password"
                     label="Contraseña"
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    {...register("password")}
+                    error={!!errors?.password?.message}
+                    helperText={errors?.password?.message}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
-                    name="confirm-password"
                     label="Confirmar Contraseña"
                     type="password"
-                    id="confirm-password"
+                    id="confirm_password"
                     autoComplete="current-password"
+                    {...register("confirm_password")}
+                    error={!!errors?.confirm_password?.message}
+                    helperText={errors?.confirm_password?.message}
                   />
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    sx={{marginTop: '15px', marginBottom: '5px'}}
-                  >
-                    Registrar
-                  </Button>
+
+                  {loading ? (
+                    <LoadingButton sx={{ marginTop: "15px" }} />
+                  ) : (
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      sx={{ marginTop: "15px", marginBottom: "5px" }}
+                    >
+                      Registrar
+                    </Button>
+                  )}
                 </form>
               </Paper>
             </Grid>
           </Grid>
         </Container>
       </>
+
+      {snackbarState.open && (
+        <SnackBar
+          snackbarState={snackbarState}
+          setSnackbarState={() => {
+            setSnackbarState((prev) => ({
+              ...prev,
+              message: "",
+              open: false,
+            }));
+          }}
+        />
+      )}
     </main>
   );
 }
