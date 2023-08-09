@@ -23,6 +23,8 @@ import { MessageResponse } from "@/utils/types";
 import { handleError } from "@/utils/response-handler";
 import LoadingButton from "@/components/loadingButton";
 
+import { setCookie } from "cookies-next";
+
 const schema = yup
   .object({
     email: yup
@@ -63,8 +65,8 @@ export default function Login() {
 
       const { data } = response.data;
 
-      localStorage.setItem("user", data?.user);
-      localStorage.setItem("token", data?.token);
+      setCookie("token", data?.token);
+      setCookie("user", JSON.stringify(data?.user));
 
       router.push("/treatments");
     } catch (error: any) {
