@@ -12,7 +12,7 @@ import { Box, TextField } from "@mui/material";
 
 // styles
 import "./styles.scss";
-import Axios from "@/config/interceptor";
+import axios from "@/config/interceptor";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -22,7 +22,7 @@ export default function AvailableTreatments() {
   React.useEffect(() => {
     const getData = async () => {
       try {
-        const response = await Axios.post("https://jsonplaceholder.typicode.com/users"); // Replace with your API endpoint
+        const response = await axios.get("/users"); // Replace with your API endpoint
 
         // Handle the response data here
         console.log(response.data);
