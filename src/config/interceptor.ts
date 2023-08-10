@@ -7,7 +7,7 @@ import axios, {
 
 // Creamos una instancia de axios para configurar nuestro interceptor
 const api: AxiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api/",
+  baseURL: "https://dev.consultorio-api.lc/api/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,7 +17,7 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: AxiosRequestConfig | any) => {
     const token = localStorage.getItem("token");
-
+    console.log(token);
     config.headers.Authorization = `Bearer ${token}`;
     return config;
   },

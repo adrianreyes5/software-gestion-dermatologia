@@ -64,11 +64,11 @@ export default function Login() {
       }
 
       const { data } = response.data;
-
+      localStorage.setItem("token", data?.token);
       setCookie("token", data?.token);
       setCookie("user", JSON.stringify(data?.user));
 
-      router.push("/treatments");
+      router.push("/");
     } catch (error: any) {
       setSnackbarState({
         open: true,

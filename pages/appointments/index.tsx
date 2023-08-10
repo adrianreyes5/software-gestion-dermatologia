@@ -139,7 +139,7 @@ export default function AvailableTreatments() {
                         return (
                         <TableRow hover role="checkbox" tabIndex={-1} key={i}>
                             {columns.map((column) => {
-                            const value = row[column.id];
+                            const value: string = row[column.id];
                             return (
                                 <TableCell key={column.id} align={column.align}>
                                     {column.id == 'status' ? 
