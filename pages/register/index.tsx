@@ -16,10 +16,13 @@ import { handleError } from "@/utils/response-handler";
 import { MessageResponse } from "@/utils/types";
 
 import axios from "../../src/config/interceptor";
-import LoadingButton from "@/components/loadingButton";
+import LoadingButton from "@/components/loading-button";
 import SnackBar from "@/components/snackbar";
 
-import { setCookie } from "cookies-next";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const schema = yup
   .object({
@@ -49,9 +52,13 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      birthday: dayjs(new Date()).format("DD/MM/YYYY"),
+    },
   });
 
   const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
@@ -70,17 +77,13 @@ export default function Register() {
         throw new Error(response.data?.message);
       }
 
-      const { data } = response.data;
-
-      setCookie("token", data?.token);
-
       setSnackbarState({
         open: true,
         type: "success",
         message: "Registrado exitosamente",
       });
 
-      router.push("/treatments");
+      router.push("/login");
     } catch (error: any) {
       setSnackbarState({
         open: true,
@@ -90,6 +93,10 @@ export default function Register() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDateChange = (date: any) => {
+    setValue("birthday", dayjs(date).format("DD/MM/YYYY"));
   };
 
   return (
@@ -166,17 +173,17 @@ export default function Register() {
                     error={!!errors?.address?.message}
                     helperText={errors?.address?.message}
                   />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    id="date"
-                    label="Fecha de nacimiento"
-                    autoComplete="11/05/2000"
-                    {...register("birthday")}
-                    error={!!errors?.birthday?.message}
-                    helperText={errors?.birthday?.message}
-                  />
+
+                  <Box mt={1} width="100% ">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        defaultValue={dayjs(new Date())}
+                        className="full-w"
+                        onChange={handleDateChange}
+                      />
+                    </LocalizationProvider>
+                  </Box>
+
                   <TextField
                     variant="outlined"
                     margin="normal"

@@ -2,36 +2,42 @@
 
 // General css
 body {
-    margin: 0;
+  margin: 0;
 }
 
 // text colors
 .text-primary {
-    color: $primary-color;
+  color: $primary-color;
 }
 .text-secondary {
-    color: $secondary-color;
+  color: $secondary-color;
 }
 .text-light {
-    color: $light-color;
+  color: $light-color;
 }
 .text-dark {
-    color: $dark-color;
+  color: $dark-color;
 }
 
 // background colors
 .bg-primary {
-    background-color: $primary-color;
+  background-color: $primary-color;
 }
 .bg-secondary {
-    background-color: $secondary-color;
+  background-color: $secondary-color;
 }
 .bg-light {
-    background-color: $light-color;
+  background-color: $light-color;
 }
 .bg-dark {
-    background-color: $dark-color;
+  background-color: $dark-color;
 }
 
 @import "./_login.scss";
 @import "./_calendar.scss";
+
+/** date picker field */
+
+.full-w {
+  width: 100%;
+}

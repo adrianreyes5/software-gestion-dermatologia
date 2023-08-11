@@ -54,7 +54,7 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-
+  handleHoursSelected: (hours: string[]) => void;
   date: string;
 };
 
@@ -62,6 +62,7 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
   open,
   setOpen,
   date,
+  handleHoursSelected,
 }) => {
   const [hours, setHours] = React.useState(hourData);
   const [showAlertDialog, setShowAlertDialog] = React.useState<{
@@ -86,7 +87,6 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
       hours[index + 1]?.available &&
       hours[index + 2]?.available;
 
-    console.log(isAvailable);
     if (isAvailable) {
       // Actualiza el estado "selected" del elemento seleccionado y los siguientes 2 elementos
       for (let i = index; i <= index + 2 && i < newData.length; i++) {
@@ -140,7 +140,21 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
               </Button>
             </Box>
             <Box mx={1}>
-              <Button autoFocus onClick={handleClose} variant="contained">
+              <Button
+                autoFocus
+                onClick={() => {
+                  handleHoursSelected(
+                    hours
+                      .filter((hour) => hour.selected)
+                      .map((hour) => hour.value)
+                  );
+
+                  handleClose();
+                  setHours(hourData);
+                }}
+                variant="contained"
+                disabled={hours.filter((hour) => hour.selected).length === 0}
+              >
                 Guardar
               </Button>
             </Box>

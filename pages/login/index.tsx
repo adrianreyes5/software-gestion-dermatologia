@@ -20,7 +20,7 @@ import SnackBar from "@/components/snackbar";
 import React from "react";
 import { MessageResponse } from "@/utils/types";
 import { handleError } from "@/utils/response-handler";
-import LoadingButton from "@/components/loadingButton";
+import LoadingButton from "@/components/loading-button";
 
 import { setCookie } from "cookies-next";
 

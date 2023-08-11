@@ -8,7 +8,7 @@ import { deleteCookie } from "cookies-next";
 
 // Creamos una instancia de axios para configurar nuestro interceptor
 const api: AxiosInstance = axios.create({
-  baseURL: "https://dev.consultorio-api.lc/api/",
+  baseURL: "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
