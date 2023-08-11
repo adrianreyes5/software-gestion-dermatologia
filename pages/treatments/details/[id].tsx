@@ -21,6 +21,20 @@ import {
 } from "@mui/material";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import WestIcon from '@mui/icons-material/West';
+import { useRouter } from 'next/router';
+import axios from "@/config/interceptor";
+
+interface Treatment {
+    "id": number;
+    "name": string;
+    "description": string;
+    "cost": number;
+    "duration": number;
+    "image-url": string;
+    "protocols": string;
+    "created_at": Date;
+    "updated_at": Date;
+}
 
 export default function AvailableTreatments() {
   const [openDateDialog, setOpenDateDialog] = React.useState<boolean>(false);
@@ -28,11 +42,31 @@ export default function AvailableTreatments() {
   const [appointmentType, setAppointmentType] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
+  const [treatment, setTreatment] = React.useState<Treatment>({} as Treatment);
   const timer = React.useRef<number>();
+  const router = useRouter();
+  const { id } = router.query;
 
   React.useEffect(() => {
+    const getData = async () => {
+        try {
+          const response = await axios.get(`/treatments/${id}`); // Replace with your API endpoint
+  
+          // Handle the response data here
+          console.log(response.data);
+          const data: Treatment = response.data;
+          setTreatment(data);
+        } catch (error) {
+          // Handle the error here
+          console.error(error);
+        }
+      };
+  
+      getData();
+
     return () => {
       clearTimeout(timer.current);
+      console.log('id', id )
     };
   }, []);
 
@@ -43,7 +77,7 @@ export default function AvailableTreatments() {
     setOpenDateDialog(true);
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChangeType = (event: SelectChangeEvent) => {
     setAppointmentType(event.target.value);
   };
 
@@ -78,11 +112,11 @@ export default function AvailableTreatments() {
               <Grid item xs={6}>
                 
                 <Typography variant="h4" className="text-primary">
-                  Tratamiento con Botox
+                  {treatment.name}
                 </Typography>
 
                 <Typography variant="body1" paragraph align="justify"  mt={2}>
-                  Inyección de toxina botulínica en ciertos músculos faciales para suavizar las arrugas y líneas de expresión.
+                  {treatment.description}
                 </Typography>
 
                 <Typography variant="h6" className="text-primary">
@@ -93,10 +127,10 @@ export default function AvailableTreatments() {
                 </Typography>
 
                 <Typography variant="body1" paragraph align="justify">
-                  <b>Costo:</b> Desde $300 a $800 por área tratada.
+                  <b>Costo:</b> {treatment.cost}$
                 </Typography>
                 <Typography variant="body1" paragraph align="justify">
-                  <b>Duración:</b> Alrededor de 10 a 15 minutos por sesión, dependiendo de la cantidad de áreas tratadas.
+                  <b>Duración:</b> {treatment.duration} hora(s)
                 </Typography>
 
                 <FormControl sx={{ my: 3, minWidth: 130, display: 'flex' }} size="small" >
@@ -107,7 +141,7 @@ export default function AvailableTreatments() {
                     defaultValue={""}
                     value={appointmentType}
                     label="Tipo de cita *"
-                    onChange={handleChange}
+                    onChange={handleChangeType}
                     sx={{ maxWidth: 140 }}
                   >
                     <MenuItem value={"Previa"}>Previa</MenuItem>

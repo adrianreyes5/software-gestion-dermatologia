@@ -8,16 +8,27 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Box, TextField } from "@mui/material";
+import { 
+  Box, 
+  TextField,
+} from "@mui/material";
 
 // styles
 import axios from "@/config/interceptor";
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-// TODO remove, this demo shouldn't need to reset the theme.
+interface Treatment {
+  "id": number;
+  "name": string;
+  "description": string;
+  "cost": number;
+  "duration": number;
+  "image-url": string;
+  "protocols": string;
+}
 
 export default function AvailableTreatments() {
+  const [treatments, setTreatments] = React.useState<Treatment[]>([]);
+  
   React.useEffect(() => {
     const getData = async () => {
       try {
@@ -25,6 +36,8 @@ export default function AvailableTreatments() {
 
         // Handle the response data here
         console.log(response.data);
+        const data: Treatment[] = response.data;
+        setTreatments(data);
       } catch (error) {
         // Handle the error here
         console.error(error);
@@ -40,8 +53,7 @@ export default function AvailableTreatments() {
 
       <main>
         {/* Hero unit */}
-
-        <Container sx={{ py: 5 }} maxWidth="md">
+        <Container sx={{ py: 10 }} maxWidth="md">
           <Box mb={4} textAlign="center">
             <Typography variant="h4" color="primary">
               Procedimientos disponibles
@@ -49,19 +61,20 @@ export default function AvailableTreatments() {
 
             <TextField
               variant="outlined"
-              margin="normal"
+              size="small"
               required
               fullWidth
               name="search"
               label="Buscar"
               type="text"
               id="search"
+              sx={{ marginTop: "25px" }}
             />
           </Box>
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {cards.map((card) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
+            {treatments.map((treatment, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4}>
                 <Card
                   sx={{
                     height: "100%",
@@ -76,7 +89,7 @@ export default function AvailableTreatments() {
                       // 16:9
                       pt: "56.25%",
                     }}
-                    image="https://source.unsplash.com/random?wallpapers"
+                    image={treatment["image-url"]}
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography
@@ -85,11 +98,10 @@ export default function AvailableTreatments() {
                       component="h2"
                       color="primary"
                     >
-                      Heading
+                      {treatment.name}
                     </Typography>
                     <Typography>
-                      This is a media card. You can use this section to describe
-                      the content.
+                      {treatment.description.substring(0, 60) + "..."}
                     </Typography>
                   </CardContent>
                   <CardActions sx={{ padding: "0 15px" }}>
@@ -97,7 +109,7 @@ export default function AvailableTreatments() {
                       size="small"
                       color="primary"
                       variant="contained"
-                      href="/treatments/details"
+                      href={`/treatments/details/${treatment.id}`}
                     >
                       View
                     </Button>

@@ -105,7 +105,7 @@ export default function AvailableTreatments() {
       <CssBaseline />
       <main>
 
-        <Container sx={{ py: 5 }} maxWidth="md">
+        <Container sx={{ py: 10 }} maxWidth="md">
           <Box my={4} textAlign="center" mt={0}>
             <Typography variant="h4" className="text-primary">
               Gestiona tus citas

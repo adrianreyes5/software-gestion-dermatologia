@@ -19,8 +19,6 @@ import axios from "../../src/config/interceptor";
 import LoadingButton from "@/components/loadingButton";
 import SnackBar from "@/components/snackbar";
 
-import { setCookie } from "cookies-next";
-
 const schema = yup
   .object({
     first_name: yup.string().required("Nombre es requerido"),
@@ -72,15 +70,16 @@ export default function Register() {
 
       const { data } = response.data;
 
-      setCookie("token", data?.token);
+      if(data.id) {
+        setSnackbarState({
+          open: true,
+          type: "success",
+          message: "Registrado exitosamente",
+        });
+  
+        router.push("/login");
+      }
 
-      setSnackbarState({
-        open: true,
-        type: "success",
-        message: "Registrado exitosamente",
-      });
-
-      router.push("/treatments");
     } catch (error: any) {
       setSnackbarState({
         open: true,

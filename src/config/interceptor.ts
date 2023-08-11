@@ -33,7 +33,6 @@ api.interceptors.response.use(
   },
   (error: AxiosError) => {
     if(error.response?.status === 401) {
-      console.log(error.response?.status);
       localStorage.clear();
       deleteCookie("token");
     }
