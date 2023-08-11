@@ -14,16 +14,18 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
+import axios from "../../src/config/interceptor";
+import { Appoiment } from "@/utils/types";
 
 interface Column {
-  id: "name" | "date" | "status" | "survey";
+  id: "patient" | "date" | "status" | "treatment" | "patient";
   label: string;
   minWidth?: number;
   align?: "center";
 }
 
 const columns: readonly Column[] = [
-  { id: "name", label: "Nombre", minWidth: 170 },
+  { id: "patient", label: "Nombre", minWidth: 170 },
   {
     id: "date",
     label: "Fecha",
@@ -35,42 +37,9 @@ const columns: readonly Column[] = [
     minWidth: 170,
   },
   {
-    id: "survey",
+    id: "treatment",
     label: "Encuesta",
     minWidth: 170,
-  },
-];
-
-const rows = [
-  {
-    name: "Tratamiento con Botox",
-    date: "10/10/2023 10:00",
-    status: "Aceptada",
-    survey: "Disponible",
-  },
-  {
-    name: "Rellenos dérmicos (Ácido Hialurónico)",
-    date: "12/10/2023 10:00",
-    status: "Pendiente",
-    survey: "Disponible",
-  },
-  {
-    name: "Peeling químico",
-    date: "30/10/2023 10:00",
-    status: "Rechazada",
-    survey: "Respondida",
-  },
-  {
-    name: "Microdermoabrasión",
-    date: "14/10/2023 10:00",
-    status: "Aceptada",
-    survey: "Respondida",
-  },
-  {
-    name: "Láser Fraccional",
-    date: "22/10/2023 10:00",
-    status: "Cancelada",
-    survey: "Disponible",
   },
 ];
 
@@ -89,6 +58,25 @@ function getColor(value: string) {
 export default function AvailableTreatments() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [appoiments, setAppoiments] = React.useState<Appoiment[]>([]);
+
+  React.useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await axios.get("/appointments"); // Replace with your API endpoint
+
+        // Handle the response data here
+        console.log(response.data);
+
+        setAppoiments(response.data.data);
+      } catch (error) {
+        // Handle the error here
+        console.error(error);
+      }
+    };
+
+    getData();
+  }, []);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -130,7 +118,7 @@ export default function AvailableTreatments() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows
+                  {appoiments
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row, i) => {
                       return (
@@ -160,7 +148,7 @@ export default function AvailableTreatments() {
             <TablePagination
               rowsPerPageOptions={[10, 25, 50]}
               component="div"
-              count={rows.length}
+              count={appoiments.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

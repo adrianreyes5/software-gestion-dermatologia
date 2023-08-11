@@ -15,3 +15,15 @@ export type Treatment = {
   protocols: string;
   updated_at: string;
 };
+
+export type Appoiment = {
+  id: number;
+  date: string;
+  doctor?: string;
+  end_time?: string;
+  patient: string;
+  start_time?: string;
+  status: string;
+  treatment: string;
+  type?: string;
+};
