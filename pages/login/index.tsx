@@ -12,6 +12,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Box, TextField, Chip, Paper } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import CardMedia from '@mui/material/CardMedia';
 
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -20,7 +21,7 @@ import SnackBar from "@/components/snackbar";
 import React from "react";
 import { MessageResponse } from "@/utils/types";
 import { handleError } from "@/utils/response-handler";
-import LoadingButton from "@/components/loadingButton";
+import LoadingButton from "@/components/loading-button";
 
 import { setCookie } from "cookies-next";
 
@@ -93,7 +94,13 @@ export default function Login() {
             alignItems="center"
             justifyContent="center"
           >
-            <Typography variant="h4" align="center" color={"primary"}>
+            <CardMedia
+                component="img"
+                image="/images/logo2.png"
+                alt="Logo"
+                sx={{ mr: 1, width: '100%', maxWidth: '300px', marginBottom: '20px' }}
+            />
+            <Typography variant="h4" align="center" color={"primary"} mb={1}>
               Bienvenido
             </Typography>
             <Typography variant="body1" paragraph align="center">

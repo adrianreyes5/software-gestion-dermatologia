@@ -60,7 +60,7 @@ function NavBar() {
         <Toolbar disableGutters>
           <CardMedia
             component="img"
-            image="/images/logo.jpg"
+            image="/images/logo.png"
             alt="Logo"
             sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, width: '80px' }}
           />
@@ -103,7 +103,7 @@ function NavBar() {
           </Box>
           <CardMedia
             component="img"
-            image="/images/logo_header.png"
+            image="/images/logo.png"
             alt="Logo"
             sx={{ display: { xs: 'flex', md: 'none', width: "100px" }, mr: 2  }}
           />

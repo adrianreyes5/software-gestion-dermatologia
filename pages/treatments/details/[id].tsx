@@ -6,10 +6,10 @@ import "dayjs/locale/es";
 
 import dayjs from "dayjs";
 import TreatmentHoursDialog from "@/components/treatment-hours-dialog";
-import { 
+import {
   Grid,
   Container,
-  Box, 
+  Box,
   InputLabel,
   Typography,
   MenuItem,
@@ -17,63 +17,56 @@ import {
   Button,
   CircularProgress,
   Paper,
-  Link
+  Link,
 } from "@mui/material";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import WestIcon from '@mui/icons-material/West';
 import { useRouter } from 'next/router';
+import { MessageResponse, Treatment } from "@/utils/types";
+import { createAppointment } from "@/api/appointment";
+import SnackBar from "@/components/snackbar";
 import axios from "@/config/interceptor";
 
-interface Treatment {
-    "id": number;
-    "name": string;
-    "description": string;
-    "cost": number;
-    "duration": number;
-    "image-url": string;
-    "protocols": string;
-    "created_at": Date;
-    "updated_at": Date;
-}
-
 export default function AvailableTreatments() {
-  const [openDateDialog, setOpenDateDialog] = React.useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = React.useState<string>("");
-  const [appointmentType, setAppointmentType] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
-  const [treatment, setTreatment] = React.useState<Treatment>({} as Treatment);
-  const timer = React.useRef<number>();
   const router = useRouter();
   const { id } = router.query;
 
+  const [openDateDialog, setOpenDateDialog] = React.useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = React.useState<string>("");
+  const [selectedDateFormat, setSelectedDateFormat] =React.useState<string>("");
+  const [appointmentType, setAppointmentType] = React.useState("Previa");
+  const [loading, setLoading] = React.useState(false);
+  const [details, setDetails] = React.useState<Treatment>();
+  const [protocols, setProtocols] = React.useState([] as string[]);
+  const [hourSelected, setHourSelected] = React.useState<string>();
+  const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
+    message: "",
+    open: false,
+    type: "success",
+  });
+
   React.useEffect(() => {
     const getData = async () => {
-        try {
-          const response = await axios.get(`/treatments/${id}`); // Replace with your API endpoint
-  
-          // Handle the response data here
-          console.log(response.data);
-          const data: Treatment = response.data;
-          setTreatment(data);
-        } catch (error) {
-          // Handle the error here
-          console.error(error);
-        }
-      };
-  
-      getData();
-
-    return () => {
-      clearTimeout(timer.current);
-      console.log('id', id )
+      try {
+        const response = await axios.get(`/treatments/${id}`);
+        const data: Treatment = response.data;
+        
+        setProtocols(data.protocols.split("-"));
+        setDetails(data);
+      } catch (error) {
+        console.error(error);
+      }
     };
+
+    getData();
   }, []);
 
   const handleDate = (event: any) => {
     const date = dayjs(event).format("MMMM D, YYYY");
+    const format = dayjs(event).format("YYYY-MM-DD");
 
     setSelectedDate(date);
+    setSelectedDateFormat(format);
     setOpenDateDialog(true);
   };
 
@@ -81,28 +74,45 @@ export default function AvailableTreatments() {
     setAppointmentType(event.target.value);
   };
 
-  const handleAppointment = () => {
-    if (!loading) {
-      setSuccess(false);
-      setLoading(true);
-      timer.current = window.setTimeout(() => {
-        setSuccess(true);
-        setLoading(false);
-      }, 2000);
-    }
+  const handleHoursSelected = async (hoursSelected: string[]) => {
+    setHourSelected(hoursSelected[0].split(" ")[0]);
   };
+
+  const handleAppointment = async () => {
+    const data = {
+      date: selectedDateFormat,
+      time: hourSelected as string,
+      type: appointmentType === "Previa" ? "Cita Previa" : "Cita Formal",
+      treatment: 1,
+    };
+
+    setLoading(true);
+
+    const response = await createAppointment(data);
+
+    setSnackbarState({
+      message: response.message,
+      open: true,
+      type: response.status as any,
+    });
+
+    setLoading(false);
+
+    router.push("/");
+  };
+
   return (
     <div>
-      <Container sx={{ py: 4 }} maxWidth="md">
-        <Link href="/treatments" sx={{ cursor: 'pointer' }}>
-          <WestIcon sx={{fontSize: '35px', marginBottom: '5px'}} />
+      <Container sx={{ py: 8 }} maxWidth="md">
+        <Link href="/" sx={{ cursor: "pointer" }}>
+          <WestIcon sx={{ fontSize: "35px", marginBottom: "5px" }} />
         </Link>
         <Box my={1} textAlign="center">
-          <Paper sx={{ padding: "20px"}}>
+          <Paper sx={{ padding: "20px" }}>
             <Grid container spacing={4}>
               <Grid item xs={6}>
                 <img
-                  src="/images/botox.jpg"
+                  src={details?.['image-url']}
                   alt="Descripción de la imagen"
                   width="100%"
                   loading="lazy"
@@ -110,68 +120,84 @@ export default function AvailableTreatments() {
                 />
               </Grid>
               <Grid item xs={6}>
-                
                 <Typography variant="h4" className="text-primary">
-                  {treatment.name}
+                  {details?.name}
                 </Typography>
 
-                <Typography variant="body1" paragraph align="justify"  mt={2}>
-                  {treatment.description}
+                <Typography variant="body1" paragraph align="justify" mt={2}>
+                  {details?.description}
                 </Typography>
 
                 <Typography variant="h6" className="text-primary">
                   Requisitos previos
                 </Typography>
+                {protocols.map((protocol, index) => (
+                    <Typography 
+                        variant="body1" 
+                        paragraph 
+                        align="justify" 
+                        key={index} 
+                        sx={{marginBottom: "0px", marginTop: '5px'}}
+                    >
+                        - {protocol} 
+                    </Typography>
+                ))}
+
+                <Typography variant="body1" paragraph align="justify" mt={2}>
+                  <b>Costo:</b> {details?.cost}$
+                </Typography>
                 <Typography variant="body1" paragraph align="justify">
-                  - Evaluación médica para asegurar que eres un candidato adecuado.
+                  <b>Duración:</b> {details?.duration} hora(s)
                 </Typography>
 
-                <Typography variant="body1" paragraph align="justify">
-                  <b>Costo:</b> {treatment.cost}$
-                </Typography>
-                <Typography variant="body1" paragraph align="justify">
-                  <b>Duración:</b> {treatment.duration} hora(s)
-                </Typography>
-
-                <FormControl sx={{ my: 3, minWidth: 130, display: 'flex' }} size="small" >
-                  <InputLabel id="appointment-type-label">Tipo de cita</InputLabel>
+                <FormControl
+                  sx={{ my: 3, minWidth: 130, display: "flex" }}
+                  size="small"
+                >
+                  <InputLabel id="appointment-type-label">
+                    Tipo de cita
+                  </InputLabel>
                   <Select
                     labelId="appointment-type-label"
                     id="appointment-type"
-                    defaultValue={""}
+                    defaultValue="Previa"
                     value={appointmentType}
                     label="Tipo de cita *"
                     onChange={handleChangeType}
                     sx={{ maxWidth: 140 }}
                   >
-                    <MenuItem value={"Previa"}>Previa</MenuItem>
-                    <MenuItem value={"Formal"}>Formal</MenuItem>
+                    <MenuItem value="Previa">Previa</MenuItem>
+                    <MenuItem value="Formal">Formal</MenuItem>
                   </Select>
                 </FormControl>
 
-                <Box textAlign="left" >
-                  <Typography variant="subtitle1" className="text-primary" >
+                <Box textAlign="left">
+                  <Typography variant="subtitle1" className="text-primary">
                     Escoge una fecha:
                   </Typography>
                   <div>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                      <DateCalendar onChange={handleDate}  />
+                    <LocalizationProvider
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale="es"
+                    >
+                      <DateCalendar onChange={handleDate} />
                     </LocalizationProvider>
                     <TreatmentHoursDialog
                       open={openDateDialog}
                       setOpen={setOpenDateDialog}
                       date={selectedDate}
+                      handleHoursSelected={handleHoursSelected}
                     />
                   </div>
                 </Box>
 
-                <Box sx={{ m: 1, position: 'relative' }}>
+                <Box sx={{ m: 1, position: "relative" }}>
                   <Button
                     variant="contained"
-                    size="medium" 
-                    color="primary" 
+                    size="medium"
+                    color="primary"
                     onClick={handleAppointment}
-                    disabled={appointmentType === '' || loading}
+                    disabled={(!hourSelected && !selectedDateFormat) || loading}
                   >
                     Agendar
                   </Button>
@@ -180,11 +206,11 @@ export default function AvailableTreatments() {
                       size={24}
                       sx={{
                         color: "primary",
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        marginTop: '-12px',
-                        marginLeft: '-12px',
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        marginTop: "-12px",
+                        marginLeft: "-12px",
                       }}
                     />
                   )}
@@ -194,6 +220,19 @@ export default function AvailableTreatments() {
           </Paper>
         </Box>
       </Container>
+
+      {snackbarState.open && (
+        <SnackBar
+          snackbarState={snackbarState}
+          setSnackbarState={() => {
+            setSnackbarState((prev) => ({
+              ...prev,
+              message: "",
+              open: false,
+            }));
+          }}
+        />
+      )}
     </div>
   );
 }

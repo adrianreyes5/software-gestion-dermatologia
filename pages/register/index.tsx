@@ -16,8 +16,13 @@ import { handleError } from "@/utils/response-handler";
 import { MessageResponse } from "@/utils/types";
 
 import axios from "../../src/config/interceptor";
-import LoadingButton from "@/components/loadingButton";
+import LoadingButton from "@/components/loading-button";
 import SnackBar from "@/components/snackbar";
+
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const schema = yup
   .object({
@@ -47,9 +52,13 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      birthday: dayjs(new Date()).format("DD/MM/YYYY"),
+    },
   });
 
   const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
@@ -69,6 +78,7 @@ export default function Register() {
       }
 
       const { data } = response.data;
+      console.log('data', data)
 
       if(data.id) {
         setSnackbarState({
@@ -91,12 +101,16 @@ export default function Register() {
     }
   };
 
+  const handleDateChange = (date: any) => {
+    setValue("birthday", dayjs(date).format("DD/MM/YYYY"));
+  };
+
   return (
     <main>
       <>
         <CssBaseline />
         <Container component="main" maxWidth="sm">
-          <Grid container spacing={2} mt={10} mb={5}>
+          <Grid container spacing={2} my={10}>
             <Grid item xs={12} sm={12}>
               <Paper sx={{ padding: "20px" }}>
                 <AccountCircleIcon
@@ -165,17 +179,17 @@ export default function Register() {
                     error={!!errors?.address?.message}
                     helperText={errors?.address?.message}
                   />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    id="date"
-                    label="Fecha de nacimiento"
-                    autoComplete="11/05/2000"
-                    {...register("birthday")}
-                    error={!!errors?.birthday?.message}
-                    helperText={errors?.birthday?.message}
-                  />
+
+                  <Box mt={1} width="100% ">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        defaultValue={null}
+                        className="full-w"
+                        onChange={handleDateChange}
+                      />
+                    </LocalizationProvider>
+                  </Box>
+
                   <TextField
                     variant="outlined"
                     margin="normal"

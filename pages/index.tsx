@@ -15,29 +15,21 @@ import {
 
 // styles
 import axios from "@/config/interceptor";
-
-interface Treatment {
-  "id": number;
-  "name": string;
-  "description": string;
-  "cost": number;
-  "duration": number;
-  "image-url": string;
-  "protocols": string;
-}
+import { Treatment } from "@/utils/types";
+import { set } from "react-hook-form";
 
 export default function AvailableTreatments() {
   const [treatments, setTreatments] = React.useState<Treatment[]>([]);
+  const [filter, setFilter] = React.useState<Treatment[]>([]);
   
   React.useEffect(() => {
     const getData = async () => {
       try {
-        const response = await axios.get("/treatments"); // Replace with your API endpoint
+        const response = await axios.get("/treatments"); 
 
-        // Handle the response data here
-        console.log(response.data);
         const data: Treatment[] = response.data;
         setTreatments(data);
+        setFilter(data);
       } catch (error) {
         // Handle the error here
         console.error(error);
@@ -46,6 +38,19 @@ export default function AvailableTreatments() {
 
     getData();
   }, []);
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    const word = value.toLowerCase();
+    if(word === ""){
+      setFilter(treatments);
+    } else {
+      let filtered = filter.filter((treatment) =>
+        treatment.name.toLowerCase().includes(word)
+      );
+      setFilter(filtered);
+    }
+  };
 
   return (
     <>
@@ -69,11 +74,12 @@ export default function AvailableTreatments() {
               type="text"
               id="search"
               sx={{ marginTop: "25px" }}
+              onChange={handleSearch}
             />
           </Box>
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {treatments.map((treatment, index) => (
+            {filter.map((treatment, index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>
                 <Card
                   sx={{
@@ -117,7 +123,7 @@ export default function AvailableTreatments() {
                       size="small"
                       color="primary"
                       variant="outlined"
-                      href="/treatments/edit"
+                      href={`/treatments/edit/${treatment.id}`}
                     >
                       Edit
                     </Button>
