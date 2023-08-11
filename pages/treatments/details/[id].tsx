@@ -19,13 +19,14 @@ import {
   Paper,
   Link,
 } from "@mui/material";
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import WestIcon from '@mui/icons-material/West';
-import { useRouter } from 'next/router';
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import WestIcon from "@mui/icons-material/West";
+import { useRouter } from "next/router";
 import { MessageResponse, Treatment } from "@/utils/types";
 import { createAppointment } from "@/api/appointment";
 import SnackBar from "@/components/snackbar";
 import axios from "@/config/interceptor";
+import { getDateAvailableHours } from "@/api/treatment";
 
 export default function AvailableTreatments() {
   const router = useRouter();
@@ -33,12 +34,14 @@ export default function AvailableTreatments() {
 
   const [openDateDialog, setOpenDateDialog] = React.useState<boolean>(false);
   const [selectedDate, setSelectedDate] = React.useState<string>("");
-  const [selectedDateFormat, setSelectedDateFormat] =React.useState<string>("");
+  const [selectedDateFormat, setSelectedDateFormat] =
+    React.useState<string>("");
   const [appointmentType, setAppointmentType] = React.useState("Previa");
   const [loading, setLoading] = React.useState(false);
   const [details, setDetails] = React.useState<Treatment>();
   const [protocols, setProtocols] = React.useState([] as string[]);
   const [hourSelected, setHourSelected] = React.useState<string>();
+  const [unavailableDates, setUnavailableDates] = React.useState<string[]>();
   const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
     message: "",
     open: false,
@@ -50,7 +53,7 @@ export default function AvailableTreatments() {
       try {
         const response = await axios.get(`/treatments/${id}`);
         const data: Treatment = response.data;
-        
+
         setProtocols(data.protocols.split("-"));
         setDetails(data);
       } catch (error) {
@@ -61,9 +64,17 @@ export default function AvailableTreatments() {
     getData();
   }, []);
 
+  const checkDateHours = async (date: string) => {
+    const { data } = await getDateAvailableHours(date);
+
+    setUnavailableDates(data);
+  };
+
   const handleDate = (event: any) => {
     const date = dayjs(event).format("MMMM D, YYYY");
     const format = dayjs(event).format("YYYY-MM-DD");
+
+    checkDateHours(format);
 
     setSelectedDate(date);
     setSelectedDateFormat(format);
@@ -97,8 +108,6 @@ export default function AvailableTreatments() {
     });
 
     setLoading(false);
-
-    router.push("/");
   };
 
   return (
@@ -112,7 +121,7 @@ export default function AvailableTreatments() {
             <Grid container spacing={4}>
               <Grid item xs={6}>
                 <img
-                  src={details?.['image-url']}
+                  src={details?.["image-url"]}
                   alt="Descripción de la imagen"
                   width="100%"
                   loading="lazy"
@@ -132,15 +141,15 @@ export default function AvailableTreatments() {
                   Requisitos previos
                 </Typography>
                 {protocols.map((protocol, index) => (
-                    <Typography 
-                        variant="body1" 
-                        paragraph 
-                        align="justify" 
-                        key={index} 
-                        sx={{marginBottom: "0px", marginTop: '5px'}}
-                    >
-                        - {protocol} 
-                    </Typography>
+                  <Typography
+                    variant="body1"
+                    paragraph
+                    align="justify"
+                    key={index}
+                    sx={{ marginBottom: "0px", marginTop: "5px" }}
+                  >
+                    - {protocol}
+                  </Typography>
                 ))}
 
                 <Typography variant="body1" paragraph align="justify" mt={2}>
@@ -180,13 +189,18 @@ export default function AvailableTreatments() {
                       dateAdapter={AdapterDayjs}
                       adapterLocale="es"
                     >
-                      <DateCalendar onChange={handleDate} />
+                      <DateCalendar
+                        onChange={handleDate}
+                        minDate={dayjs(new Date())}
+                      />
                     </LocalizationProvider>
                     <TreatmentHoursDialog
                       open={openDateDialog}
                       setOpen={setOpenDateDialog}
                       date={selectedDate}
                       handleHoursSelected={handleHoursSelected}
+                      duration={details?.duration as number}
+                      unavailableDates={unavailableDates as string[]}
                     />
                   </div>
                 </Box>

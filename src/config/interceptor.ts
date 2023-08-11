@@ -8,8 +8,7 @@ import { deleteCookie } from "cookies-next";
 
 // Creamos una instancia de axios para configurar nuestro interceptor
 const api: AxiosInstance = axios.create({
-  // baseURL: "http://localhost:8000/api",
-  baseURL: "https://dev.consultorio-api.lc/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -19,6 +18,7 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: AxiosRequestConfig | any) => {
     const token = localStorage.getItem("token");
+
     config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -33,7 +33,8 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    if(error.response?.status === 401) {
+    if (error.response?.status === 401) {
+      console.log(error.response?.status);
       localStorage.clear();
       deleteCookie("token");
     }

@@ -56,6 +56,8 @@ type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleHoursSelected: (hours: string[]) => void;
   date: string;
+  duration: number;
+  unavailableDates: string[];
 };
 
 const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
@@ -63,6 +65,8 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
   setOpen,
   date,
   handleHoursSelected,
+  duration,
+  unavailableDates,
 }) => {
   const [hours, setHours] = React.useState(hourData);
   const [showAlertDialog, setShowAlertDialog] = React.useState<{
@@ -75,29 +79,69 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
     open: false,
   });
 
+  React.useEffect(() => {
+    setHours(hourData);
+    const data = hours.map((hour) => {
+      const findUnavailableHour = unavailableDates?.includes(hour.value);
+
+      if (findUnavailableHour) {
+        return {
+          ...hour,
+          available: false,
+        };
+      }
+
+      return {
+        ...hour,
+        available: true,
+      };
+    });
+
+    setHours(data);
+  }, [unavailableDates]);
+
   const selectHours = (
     hour: { value: string; available: boolean },
     index: number
   ) => {
     // Crea una copia del array original para evitar mutaciones directas
-    const newData = [...hourData];
+    let newData = [...hours];
 
-    const isAvailable =
-      hours[index].available &&
-      hours[index + 1]?.available &&
-      hours[index + 2]?.available;
+    let isAvailable: any = null;
 
+    if (duration === 1) {
+      isAvailable = hours[index].available;
+    }
+    if (duration === 2) {
+      isAvailable = hours[index].available && hours[index + 1]?.available;
+    }
+    if (duration === 3) {
+      isAvailable =
+        hours[index].available &&
+        hours[index + 1]?.available &&
+        hours[index + 2]?.available;
+    }
+
+    newData = newData.map((item) => ({ ...item, selected: false }));
+
+    setHours((prev) => prev.map((item) => ({ ...item, selected: false })));
     if (isAvailable) {
       // Actualiza el estado "selected" del elemento seleccionado y los siguientes 2 elementos
-      for (let i = index; i <= index + 2 && i < newData.length; i++) {
+      for (
+        let i = index;
+        i <= index + (duration - 1) && i < newData.length;
+        i++
+      ) {
         newData[i] = { ...newData[i], selected: true };
       }
     } else {
       setShowAlertDialog({
         title: "Hora no disponible",
-        description: "El tiempo del tratamiento es de 3 horas",
+        description: `El tiempo del tratamiento es de ${duration} horas`,
         open: true,
       });
+
+      return;
     }
 
     // Actualiza el estado del array con los elementos actualizados
@@ -106,6 +150,7 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
 
   const handleClose = () => {
     setOpen(false);
+    setHours(hourData);
   };
 
   return (
@@ -126,7 +171,7 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
         <DialogContent dividers>
           <Box width="100%">
             <HourList
-              treatmentHours={2}
+              treatmentHours={duration}
               hours={hours}
               selectHours={selectHours}
             />

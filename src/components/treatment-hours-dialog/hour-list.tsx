@@ -6,6 +6,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import { useTheme } from "@mui/material/styles";
+import dayjs from "dayjs";
 
 type Props = {
   treatmentHours: number;
@@ -25,16 +26,19 @@ const HourList: React.FunctionComponent<Props> = ({ hours, selectHours }) => {
             <ListItem disablePadding>
               <ListItemButton
                 style={{
-                  backgroundColor: !hour.selected && hour.available
-                    ? "#fff"
-                    : !hour.available
-                    ? theme.palette.primary.light
-                    : theme.palette.primary.main,
+                  backgroundColor:
+                    !hour.selected && hour.available
+                      ? "#fff"
+                      : !hour.available
+                      ? theme.palette.primary.light
+                      : theme.palette.primary.main,
                 }}
                 disabled={!hour.available}
                 onClick={() => selectHours(hour, index)}
               >
-                <ListItemText primary={hour.value} />
+                <ListItemText
+                  primary={dayjs(hour.value, "HH:mm").format("hh:mm a")}
+                />
               </ListItemButton>
             </ListItem>
           </React.Fragment>
