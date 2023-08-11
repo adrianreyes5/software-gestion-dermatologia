@@ -11,7 +11,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 
-import "./styles.scss";
 import React from "react";
 import { handleError } from "@/utils/response-handler";
 import { MessageResponse } from "@/utils/types";
@@ -98,7 +97,7 @@ export default function Register() {
       <>
         <CssBaseline />
         <Container component="main" maxWidth="sm">
-          <Grid container spacing={2} mt={5}>
+          <Grid container spacing={2} mt={10} mb={5}>
             <Grid item xs={12} sm={12}>
               <Paper sx={{ padding: "20px" }}>
                 <AccountCircleIcon

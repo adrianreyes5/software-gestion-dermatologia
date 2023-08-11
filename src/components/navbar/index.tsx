@@ -16,15 +16,11 @@ import Link from '@mui/material/Link';
 
 const pages = [
     {
-        url: '/',
-        label: 'Inicio'
-    }, 
-    {
         url: '/appointments',
         label: 'Citas'
     }, 
     {
-        url: '/treatments',
+        url: '/',
         label: 'Tratamientos'
     }
 ];

@@ -11,7 +11,6 @@ import Container from "@mui/material/Container";
 import { Box, TextField } from "@mui/material";
 
 // styles
-import "./treatments/styles.scss";
 import axios from "@/config/interceptor";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];

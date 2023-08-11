@@ -15,9 +15,6 @@ import {
     Chip
 } from "@mui/material";
 
-// styles
-import "./styles.scss";
-
 interface Column {
     id: 'name' | 'date' | 'status' | 'survey';
     label: string;

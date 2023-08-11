@@ -5,9 +5,9 @@ import type { AppContext, AppProps } from "next/app";
 import NavBar from "@/components/navbar";
 import React from "react";
 import { getCookie } from "cookies-next";
-import "../src/styles/general.scss";
+import '../src/styles/global.scss';
 
-const protectedRoutes = ["/"];
+const protectedRoutes = ["/", "/appointments"];
 
 export default function App({ Component, pageProps }: AppProps) {
   dayjs.locale("es");

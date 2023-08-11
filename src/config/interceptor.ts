@@ -4,6 +4,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
+import { deleteCookie } from "cookies-next";
 
 // Creamos una instancia de axios para configurar nuestro interceptor
 const api: AxiosInstance = axios.create({
@@ -17,7 +18,6 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: AxiosRequestConfig | any) => {
     const token = localStorage.getItem("token");
-    console.log(token);
     config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -32,6 +32,12 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    if(error.response?.status === 401) {
+      console.log(error.response?.status);
+      localStorage.clear();
+      deleteCookie("token");
+    }
+
     return error.response;
   }
 );

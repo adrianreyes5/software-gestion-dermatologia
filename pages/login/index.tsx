@@ -13,7 +13,6 @@ import Container from "@mui/material/Container";
 import { Box, TextField, Chip, Paper } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-import "./styles.scss";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import axios from "../../src/config/interceptor";
@@ -66,7 +65,7 @@ export default function Login() {
       const { data } = response.data;
       localStorage.setItem("token", data?.token);
       setCookie("token", data?.token);
-      setCookie("user", JSON.stringify(data?.user));
+      localStorage.setItem("user", JSON.stringify(data?.user));
 
       router.push("/");
     } catch (error: any) {
@@ -84,7 +83,7 @@ export default function Login() {
     <main>
       <CssBaseline />
       <Container component="main" maxWidth="md">
-        <Grid container spacing={2} mt={15}>
+        <Grid container spacing={2} mt={10} mb={5}>
           <Grid
             item
             xs={12}

@@ -32,3 +32,6 @@ body {
 .bg-dark {
     background-color: $dark-color;
 }
+
+@import "./_login.scss";
+@import "./_calendar.scss";

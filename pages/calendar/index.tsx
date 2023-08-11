@@ -5,8 +5,6 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 
-import "./styles.scss";
-
 export default function Calendar() {
   const handleDate = (event: any) => {
     console.log(event);

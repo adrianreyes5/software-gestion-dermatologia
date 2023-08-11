@@ -22,9 +22,6 @@ import {
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import WestIcon from '@mui/icons-material/West';
 
-// styles
-import "./styles.scss";
-
 export default function AvailableTreatments() {
   const [openDateDialog, setOpenDateDialog] = React.useState<boolean>(false);
   const [selectedDate, setSelectedDate] = React.useState<string>("");
