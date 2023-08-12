@@ -82,7 +82,9 @@ const TreatmentHoursDialog: React.FunctionComponent<Props> = ({
   React.useEffect(() => {
     setHours(hourData);
     const data = hours.map((hour) => {
-      const findUnavailableHour = unavailableDates?.includes(hour.value);
+      const findUnavailableHour = unavailableDates
+        ?.slice(0, -1)
+        ?.includes(hour.value);
 
       if (findUnavailableHour) {
         return {

@@ -40,7 +40,10 @@ export default function AvailableTreatments() {
   const [loading, setLoading] = React.useState(false);
   const [details, setDetails] = React.useState<Treatment>();
   const [protocols, setProtocols] = React.useState([] as string[]);
-  const [hourSelected, setHourSelected] = React.useState<string>();
+  const [hourSelected, setHourSelected] = React.useState<{
+    start_time: string;
+    end_time: string;
+  }>();
   const [unavailableDates, setUnavailableDates] = React.useState<string[]>();
   const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
     message: "",
@@ -86,15 +89,19 @@ export default function AvailableTreatments() {
   };
 
   const handleHoursSelected = async (hoursSelected: string[]) => {
-    setHourSelected(hoursSelected[0].split(" ")[0]);
+    setHourSelected({
+      start_time: hoursSelected[0],
+      end_time: hoursSelected[hoursSelected.length - 1],
+    });
   };
 
   const handleAppointment = async () => {
     const data = {
       date: selectedDateFormat,
-      time: hourSelected as string,
+      start_time: hourSelected?.start_time as string,
+      end_time: hourSelected?.end_time as string,
       type: appointmentType === "Previa" ? "Cita Previa" : "Cita Formal",
-      treatment: 1,
+      treatment: parseInt(id as string),
     };
 
     setLoading(true);
