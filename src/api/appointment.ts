@@ -3,7 +3,8 @@ import { handleError } from "@/utils/response-handler";
 
 type createAppointmentProps = {
   date: string;
-  time: string;
+  start_time: string;
+  end_time: string;
   type: string;
   treatment: number;
 };
