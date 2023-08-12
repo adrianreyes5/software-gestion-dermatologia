@@ -15,7 +15,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 import axios from "../../src/config/interceptor";
 import { MessageResponse } from "@/utils/types";
@@ -24,6 +23,7 @@ import SnackBar from "@/components/snackbar";
 import LoadingButton from "@/components/loading-button";
 import { User, FormValues } from "@/utils/types";
 import BackupIcon from '@mui/icons-material/Backup';
+import dynamic from "next/dynamic";
 
 const schema = yup
   .object({
@@ -44,6 +44,10 @@ const schema = yup
   })
   .required();
 type FormData = yup.InferType<typeof schema>;
+
+const DatePicker = dynamic(() =>
+  import("@mui/x-date-pickers/DatePicker").then((module) => module.DatePicker)
+);
 
 export default function Profile() {
 
@@ -105,6 +109,7 @@ export default function Profile() {
     //   console.error(error);
     // }
   };
+
   React.useEffect(() => {
     const storedUserData = localStorage.getItem('user');
     if (storedUserData) {
@@ -259,13 +264,15 @@ export default function Profile() {
                 />
 
                 <Box mt={1} width="100% ">
+                {typeof window !== "undefined" && (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      defaultValue={null}
+                      defaultValue={dayjs(userData?.birthday)}
                       className="full-w"
                       onChange={handleDateChange}
                     />
                   </LocalizationProvider>
+                )}
                 </Box>
                 <Box sx={{ display: "flex", gap: "15px" }}>
                   <TextField

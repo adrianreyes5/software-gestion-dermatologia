@@ -5,6 +5,7 @@ body {
   margin: 0;
 }
 
+
 // text colors
 .text-primary {
   color: $primary-color;
@@ -33,11 +34,28 @@ body {
   background-color: $dark-color;
 }
 
-@import "./_login.scss";
-@import "./_calendar.scss";
-
-/** date picker field */
-
 .full-w {
   width: 100%;
 }
+
+html, body, #__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos del footer */
+footer {
+  margin-top: auto;
+  background-color: #f0f0f0;
+  padding: 20px;
+  text-align: center;
+}
+
+@import "./_login.scss";
+@import "./_calendar.scss";

@@ -115,12 +115,17 @@ export default function AvailableTreatments() {
     });
 
     setLoading(false);
+    if(response.status === "success") {
+      setTimeout(() => {
+        router.push("/appointments");
+      }, 2000);
+    }
   };
 
   return (
     <div>
       <Container sx={{ py: 8 }} maxWidth="md">
-        <Button onClick={() => router.back()} sx={{ cursor: "pointer", p: 0 }}>
+        <Button onClick={() => router.back()} sx={{ cursor: "pointer", p: 0, justifyContent: 'start' }}>
           <WestIcon sx={{ fontSize: "35px", marginBottom: "5px" }} />
         </Button>
         <Box my={1} textAlign="center">
