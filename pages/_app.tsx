@@ -8,7 +8,7 @@ import { getCookie } from "cookies-next";
 import '../src/styles/global.scss';
 import Footer from "@/components/footer";
 
-const protectedRoutes = ["/", "/appointments"];
+const protectedRoutes = ["/", "/appointments", "/profile"];
 
 export default function App({ Component, pageProps }: AppProps) {
   dayjs.locale("es");

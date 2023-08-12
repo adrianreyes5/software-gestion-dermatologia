@@ -10,9 +10,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Box, TextField, Paper } from "@mui/material";
+import { Box, TextField, Paper, Stack, CardMedia } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import CardMedia from "@mui/material/CardMedia";
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -21,9 +20,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "../../src/config/interceptor";
 import { MessageResponse } from "@/utils/types";
 import { handleError } from "@/utils/response-handler";
-import { setCookie } from "cookies-next";
 import SnackBar from "@/components/snackbar";
 import LoadingButton from "@/components/loading-button";
+import { User, FormValues } from "@/utils/types";
+import BackupIcon from '@mui/icons-material/Backup';
 
 const schema = yup
   .object({
@@ -45,15 +45,18 @@ const schema = yup
   .required();
 type FormData = yup.InferType<typeof schema>;
 
-export default function Login() {
-  const router = useRouter();
+export default function Profile() {
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      birthday: dayjs(new Date()).format("DD/MM/YYYY"),
+    },
   });
 
   const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
@@ -62,8 +65,64 @@ export default function Login() {
     type: "success",
   });
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [userData, setUserData] = React.useState<null | User>(null);
+  const [imageUrl, setImageUrl] = React.useState<null | string>(null);
 
-  const handleInitialData = () => {};
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInitialData = async () => {
+    const storedUserData = localStorage.getItem('user');
+    if (storedUserData) {
+      const userDataValues: FormValues = JSON.parse(storedUserData);
+
+      Object.keys(userDataValues).forEach((fieldName) => {
+        const key = fieldName as keyof FormValues;
+        if(key === 'birthday') {
+          setValue("birthday", dayjs(new Date(userDataValues[key])).format("MM/DD/YYYY"));
+        } else {
+          setValue(key, userDataValues[key]);
+        }
+      });
+    }
+    // try {
+    //   const response = await axios.get(`/users?id=${userData?.id}`); 
+    //   const data: User = response.data;
+    //   setUserData(data);
+    // } catch (error) {
+    //   // Handle the error here
+    //   console.error(error);
+    // }
+  };
+  React.useEffect(() => {
+    const storedUserData = localStorage.getItem('user');
+    if (storedUserData) {
+      const parsedUserData: User = JSON.parse(storedUserData);
+      const userDataValues: FormValues = JSON.parse(storedUserData);
+      console.log('parsedUserData', parsedUserData)
+
+      Object.keys(userDataValues).forEach((fieldName) => {
+        const key = fieldName as keyof FormValues;
+        if(key === 'birthday') {
+          setValue("birthday", dayjs(new Date(userDataValues[key])).format("MM/DD/YYYY"));
+        } else {
+          setValue(key, userDataValues[key]);
+        }
+      });
+      setUserData(parsedUserData);
+    }
+  }, []);
 
   const handleDateChange = (date: any) => {
     setValue("birthday", dayjs(date).format("DD/MM/YYYY"));
@@ -72,18 +131,22 @@ export default function Login() {
   const onSubmit = async (formData: FormData) => {
     setLoading(true);
     try {
-      const response = await axios.post("login", formData);
+      const response = await axios.put(`/user`, formData);
 
       if (handleError(response.status)) {
         throw new Error(response.data?.Error);
       }
 
       const { data } = response.data;
-      localStorage.setItem("token", data?.token);
-      setCookie("token", data?.token);
-      localStorage.setItem("user", JSON.stringify(data?.user));
+      if(data.id) {
+        setSnackbarState({
+          open: true,
+          type: "success",
+          message: "Actualizado exitosamente",
+        });
+        localStorage.setItem("user", JSON.stringify(data));
+      }
 
-      router.push("/");
     } catch (error: any) {
       setSnackbarState({
         open: true,
@@ -102,10 +165,31 @@ export default function Login() {
         <Paper sx={{ padding: "20px" }}>
           <Grid container spacing={2} p={2}>
             <Grid item xs={12} sm={6} display="flex" justifyContent="center" alignItems="start">
-              <AccountCircleIcon
-                sx={{ display: "flex", width: "100%", maxWidth: "300px", height: "auto" }}
-                color="primary"
-              />
+              <Stack direction="column" alignItems="center" spacing={2} sx={{ width: '100%'}}>
+                {imageUrl ? 
+                  <CardMedia
+                    component="img"
+                    image={imageUrl}
+                    alt="Uploaded Image"
+                    sx={{ display: "flex", width: "100%", maxWidth: "300px", borderRadius: "50%", objectFit: "cover", padding: "15px" }}
+                  /> :
+                  <AccountCircleIcon
+                    sx={{ display: "flex", width: "100%", maxWidth: "300px", height: "auto" }}
+                    color="primary"
+                  />}
+                <label htmlFor="upload-image">
+                  <Button variant="contained" component="span" startIcon={<BackupIcon />}>
+                    Upload
+                  </Button>
+                  <input
+                    id="upload-image"
+                    hidden
+                    accept="image/*"
+                    type="file"
+                    onChange={handleFileUpload}
+                  />
+                </label>
+              </Stack>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="h4" color="primary">

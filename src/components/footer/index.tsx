@@ -19,7 +19,7 @@ export default function Footer() {
     >
       <Container maxWidth="xl">
         <Grid container spacing={1}>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={9}>
             <Box
               sx={{
                 display: "flex",
@@ -31,29 +31,26 @@ export default function Footer() {
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 Contáctame
               </Typography>
-              <Typography variant="body2" color="text.primary">
-                123 Main Street, Anytown, USA
+              <Typography variant="body2" color="text.primary" mb={1}>
+                Email: neiramon@hotmail.com
               </Typography>
-              <Typography variant="body2" color="text.primary">
-                Email: info@example.com
+              <Typography variant="body2" color="text.primary" mb={1}>
+                Telefono: +58 414-9775114
               </Typography>
-              <Typography variant="body2" color="text.primary">
-                Phone: +1 234 567 8901
+              <Typography variant="body2" color="text.primary" mb={1}>
+                Ubicacion: Calle 9 Carrera 18, Barrio Obrero, San Cristobal
               </Typography>
+              <Link
+                href="https://www.instagram.com/doctoraneiramoncada/"
+                color="text.primary"
+                sx={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: { xs: "center", md: "left" } }}
+              >
+                <Instagram /> 
+                <Typography variant="body2" color="text.primary" sx={{ marginLeft: '2px' }}>
+                  @doctoraneiramoncada
+                </Typography>
+              </Link>
             </Box>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{ display: "flex", justifyContent: "center" }}
-          >
-            <CardMedia
-              component="img"
-              image="/images/logo2.png"
-              alt="Logo"
-              sx={{ mr: 1, width: "100%", maxWidth: "220px" }}
-            />
           </Grid>
           <Grid
             item
@@ -61,26 +58,17 @@ export default function Footer() {
             md={3}
             sx={{
               display: "flex",
-              flexDirection: "column",
               textAlign: { xs: "center", md: "left" },
               marginTop: { xs: "20px", md: "0" },
+              justifyContent: "center"
             }}
           >
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              Sígueme
-            </Typography>
-            <div>
-              <Link href="https://www.facebook.com/" color="text.secondary">
-                <Facebook />
-              </Link>
-              <Link
-                href="https://www.instagram.com/"
-                color="text.secondary"
-                sx={{ pl: 1, pr: 1 }}
-              >
-                <Instagram />
-              </Link>
-            </div>
+            <CardMedia
+              component="img"
+              image="/images/logo2.png"
+              alt="Logo"
+              sx={{ mr: 1, width: "100%", maxWidth: "220px", objectFit: "contain", display: "flex", justifyContent: { xs: "center", md: "end" }}}
+            />
           </Grid>
         </Grid>
         <Box mt={5}>

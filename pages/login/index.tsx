@@ -68,7 +68,7 @@ export default function Login() {
       setCookie("token", data?.token);
       localStorage.setItem("user", JSON.stringify(data?.user));
 
-      router.push("/");
+      window.location.href = "/";
     } catch (error: any) {
       setSnackbarState({
         open: true,

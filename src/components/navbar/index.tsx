@@ -13,6 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import CardMedia from '@mui/material/CardMedia';
 import Link from '@mui/material/Link';
+import axios from "../../config/interceptor";
+import { useRouter } from "next/router";
+import { handleError } from "@/utils/response-handler";
 
 const pages = [
     {
@@ -24,20 +27,12 @@ const pages = [
         label: 'Tratamientos'
     }
 ];
-const settings = [
-    {
-        url: '/profile',
-        label: 'Perfil'
-    }, 
-    {
-        url: '/logout',
-        label: 'Logout'
-    }
-];
 
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [isLoggedIn, setIsLoggedIn] = React.useState<null | string>(null);
+  const router = useRouter();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -53,6 +48,28 @@ function NavBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const handleLogout = async () => {
+    console.log('logout');
+    try {
+      const response = await axios.post("logout", {});
+      if (handleError(response.status)) {
+        throw new Error(response.data?.message);
+      }
+      console.log('resp', response);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsLoggedIn(null);
+      window.location.replace('/login');
+    } catch (error: any) {
+      console.log('error', error)
+    } 
+  };
+
+  React.useEffect(() => {
+    let token = localStorage.getItem('token');
+    setIsLoggedIn(token);
+  }, []);
 
   return (
     <AppBar position="static">
@@ -93,12 +110,22 @@ function NavBar() {
               sx={{
                 display: { xs: 'block', md: 'none' },
               }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.label} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page.label}</Typography>
-                </MenuItem>
-              ))}
+              >
+              {isLoggedIn ? (
+                pages.map((page) => (
+                  <Link href={page.url} sx={{ textDecoration: 'none'}} key={page.label}>
+                    <MenuItem >
+                      <Typography textAlign="center">{page.label}</Typography>
+                    </MenuItem>
+                  </Link>
+                ))
+              ) : (
+                <Link href="/login" sx={{ textDecoration: 'none'}}>
+                  <MenuItem>
+                    <Typography textAlign="center">Iniciar Sesión</Typography>
+                  </MenuItem>
+                </Link>
+              )}
             </Menu>
           </Box>
           <CardMedia
@@ -107,50 +134,64 @@ function NavBar() {
             alt="Logo"
             sx={{ display: { xs: 'flex', md: 'none', width: "100px" }, mr: 2  }}
           />
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'end', mr: '20px' }}>
-            {pages.map((page) => (
-              <Button
-                key={page.label}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-                href={page.url}
-              >
-                {page.label}
-              </Button>
-            ))}
-          </Box>
+            {isLoggedIn ? (
+              <>
+                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'end', mr: '20px' }}>
+                    {pages.map((page) => (
+                      <Button
+                        key={page.label}
+                        onClick={handleCloseNavMenu}
+                        sx={{ my: 2, color: 'white', display: 'block' }}
+                        href={page.url}
+                      >
+                        {page.label}
+                      </Button>
+                    ))}
+                </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Abrir Menu">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/images/pp.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <Link href={setting.url} sx={{ textDecoration: 'none'}} key={setting.label}>
-                  <MenuItem>
-                    <Typography textAlign="center" >{setting.label}</Typography>
-                  </MenuItem>
-                </Link>
-              ))}
-            </Menu>
-          </Box>
+                <Box sx={{ flexGrow: 0 }}>
+                  <Tooltip title="Abrir Menu">
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar alt="Remy Sharp" src="/images/pp.jpg" />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: '45px' }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    <Link href="/profile" sx={{ textDecoration: 'none'}} >
+                      <MenuItem>
+                        <Typography textAlign="center" >Perfil</Typography>
+                      </MenuItem>
+                    </Link>
+                    <MenuItem onClick={() => handleLogout()}>
+                      <Typography textAlign="center" color="primary" >Cerrar Sesion</Typography>
+                    </MenuItem>
+                  </Menu>
+                </Box>
+              </>
+          ) : (
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'end' }}>
+              <Button
+                sx={{ my: 2, color: 'white'}}
+                href="/login"
+              >
+                Iniciar Sesión
+              </Button>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

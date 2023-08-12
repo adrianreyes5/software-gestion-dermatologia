@@ -113,9 +113,9 @@ export default function AvailableTreatments() {
   return (
     <div>
       <Container sx={{ py: 8 }} maxWidth="md">
-        <Link href="/" sx={{ cursor: "pointer" }}>
+        <Button onClick={() => router.back()} sx={{ cursor: "pointer", p: 0 }}>
           <WestIcon sx={{ fontSize: "35px", marginBottom: "5px" }} />
-        </Link>
+        </Button>
         <Box my={1} textAlign="center">
           <Paper sx={{ padding: "20px" }}>
             <Grid container spacing={4}>

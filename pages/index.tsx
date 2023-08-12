@@ -15,18 +15,19 @@ import {
 
 // styles
 import axios from "@/config/interceptor";
-import { Treatment } from "@/utils/types";
-import { set } from "react-hook-form";
+import { Treatment, User } from "@/utils/types";
+import { useRouter } from "next/router";
 
 export default function AvailableTreatments() {
   const [treatments, setTreatments] = React.useState<Treatment[]>([]);
   const [filter, setFilter] = React.useState<Treatment[]>([]);
+  const [userData, setUserData] = React.useState<null | User>(null);
+  const router = useRouter();
   
   React.useEffect(() => {
     const getData = async () => {
       try {
         const response = await axios.get("/treatments"); 
-
         const data: Treatment[] = response.data;
         setTreatments(data);
         setFilter(data);
@@ -37,6 +38,12 @@ export default function AvailableTreatments() {
     };
 
     getData();
+
+    const storedUserData = localStorage.getItem('user');
+    if (storedUserData) {
+      const parsedUserData: User = JSON.parse(storedUserData);
+      setUserData(parsedUserData);
+      }
   }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,18 +122,20 @@ export default function AvailableTreatments() {
                       size="small"
                       color="primary"
                       variant="contained"
-                      href={`/treatments/details/${treatment.id}`}
+                      onClick={() => router.push(`/treatments/details/${treatment.id}`)}
                     >
                       View
                     </Button>
+                    {userData && (userData.role_id) == 1 && (
                     <Button
                       size="small"
                       color="primary"
                       variant="outlined"
-                      href={`/treatments/edit/${treatment.id}`}
+                      onClick={() => router.push(`/treatments/edit/${treatment.id}`)}
                     >
                       Edit
                     </Button>
+                    )}
                   </CardActions>
                 </Card>
               </Grid>

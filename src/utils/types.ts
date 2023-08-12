@@ -27,3 +27,25 @@ export type Appointment = {
   treatment: string;
   type?: string;
 };
+
+export type User = {
+  id: number;
+  address: string;
+  birthday: string;
+  created_at?: Date;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  role_id: number;
+  updated_at?: Date;
+};
+
+export type FormValues = {
+  address: string;
+  birthday: Date;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+};
