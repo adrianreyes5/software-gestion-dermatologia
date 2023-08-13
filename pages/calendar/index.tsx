@@ -23,7 +23,7 @@ export default function Calendar() {
         const data: Appointment[] = response.data.data;
 
         const calendarList = data.map((item) => ({
-          title: item.treatment,
+          title: `${item.treatment} - ${item.patient}`,
           date: `${item.date} ${item.start_time?.slice(0, 5)}`,
         }));
 
