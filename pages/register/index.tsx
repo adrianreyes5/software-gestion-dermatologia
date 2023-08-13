@@ -85,8 +85,10 @@ export default function Register() {
           type: "success",
           message: "Registrado exitosamente",
         });
-  
-        router.push("/login");
+
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
       }
 
     } catch (error: any) {

@@ -22,6 +22,7 @@ import LoadingButton from "@/components/loading-button";
 import { User, FormValues, UserData } from "@/utils/types";
 import BackupIcon from '@mui/icons-material/Backup';
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 
 const schema = yup
   .object({
@@ -78,10 +79,10 @@ export default function Profile() {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [userData, setUserData] = React.useState<null | User>(null);
   const [imageUrl, setImageUrl] = React.useState<null | string>(null);
+  const router = useRouter();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];
-    console.log('file', file)
 
     if (file) {
       const reader = new FileReader();
@@ -116,6 +117,7 @@ export default function Profile() {
   const handleInitialData = () => {
     const storedUserData = localStorage.getItem('user');
     setInitialValues(storedUserData);
+    router.push('/')
   };
 
   React.useEffect(() => {
@@ -130,10 +132,8 @@ export default function Profile() {
   const onSubmit = async (formData: any) => {
     setLoading(true);
     try {
-      console.log('formData', formData)
       formData['image-profile'] = imageUrl;
       const response = await axios.put(`/user/${userData?.id}`, formData);
-      console.log('response', response)
       if (handleError(response.status)) {
         throw new Error(response.data?.Error);
       }
@@ -146,6 +146,10 @@ export default function Profile() {
           message: "Actualizado exitosamente",
         });
         localStorage.setItem("user", JSON.stringify(data));
+        setUserData(data);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
 
     } catch (error: any) {
@@ -194,7 +198,7 @@ export default function Profile() {
                 </Stack>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="h4" color="primary">
+                <Typography variant="h4" color="primary" mb={2}>
                   Mi perfil
                 </Typography>
                   <Box sx={{ display: "flex", gap: "15px" }}>

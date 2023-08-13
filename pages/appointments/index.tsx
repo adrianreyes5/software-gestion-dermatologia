@@ -13,34 +13,65 @@ import {
   TablePagination,
   TableRow,
   Chip,
+  Button,
 } from "@mui/material";
 import axios from "../../src/config/interceptor";
 import { Appointment, User } from "@/utils/types";
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CancelIcon from '@mui/icons-material/Cancel';
+import BlockIcon from '@mui/icons-material/Block';
 
 interface Column {
-  id: "patient" | "date" | "status" | "treatment" | "patient";
+  id: "patient" | "date" | "status" | "survey" | "treatment" | "start_time" | "actions";
   label: string;
+  roles: number[];
   minWidth?: number;
   align?: "center";
 }
 
 const columns: readonly Column[] = [
-  { id: "patient", label: "Nombre", minWidth: 170 },
+  { 
+    id: "treatment", 
+    label: "Procedimiento", 
+    roles: [1, 2],
+    minWidth: 150 
+  },
+  { 
+    id: "patient", 
+    label: "Paciente", 
+    roles: [1],
+    minWidth: 150 
+  },
   {
     id: "date",
     label: "Fecha",
-    minWidth: 170,
+    minWidth: 120,
+    roles: [1, 2],
+  },
+  {
+    id: "start_time",
+    label: "Hora",
+    roles: [1, 2],
+    minWidth: 90,
   },
   {
     id: "status",
     label: "Estado",
-    minWidth: 170,
+    roles: [1, 2],
+    minWidth: 100,
   },
   {
-    id: "treatment",
+    id: "survey",
     label: "Encuesta",
-    minWidth: 170,
+    roles: [1, 2],
+    minWidth: 100,
   },
+  {
+    id: "actions",
+    label: "Acciones",
+    roles: [1],
+    minWidth: 100,
+  }
 ];
 
 function getColor(value: string) {
@@ -53,6 +84,24 @@ function getColor(value: string) {
   } else {
     return "primary";
   }
+}
+
+function getSurveyType(value: any) {
+  const targetDate: any = new Date(value.created_at);
+  const currentDate: any = new Date();
+
+  const timeDifference = currentDate - targetDate;
+  const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000;
+  
+  if (timeDifference >= threeDaysInMillis ) { // > 3 days
+    if (value.results != null) {
+      return "Respondida";
+    } else {
+      return "Disponible";
+    }
+  } else  {
+    return "Pendiente";
+  } 
 }
 
 export default function AvailableTreatments() {
@@ -68,9 +117,19 @@ export default function AvailableTreatments() {
 
     const getData = async () => {
       try {
-        const response = await axios.get(`/appointment/${user.id}`); // Replace with your API endpoint
-
-        setAppointments(response.data);
+        let url;
+        if(user.role_id == 2) {
+          url = `/appointment/${user.id}`;      
+        } else {
+          url = `/appointments`;
+        }    
+        const response = await axios.get(url); // Replace with your API endpoint
+        
+        if(response.data.length > 0) {
+          setAppointments(response.data);
+        } else {
+          setAppointments(response?.data?.data);
+        }
       } catch (error) {
         // Handle the error here
         console.error(error);
@@ -91,8 +150,6 @@ export default function AvailableTreatments() {
     setPage(0);
   };
 
-  console.log(appointments);
-
   return (
     <>
       <CssBaseline />
@@ -110,6 +167,7 @@ export default function AvailableTreatments() {
                 <TableHead>
                   <TableRow sx={{}}>
                     {columns.map((column) => (
+                      column.roles.includes(user?.role_id as number)) && (
                       <TableCell
                         key={column.id}
                         align={column.align}
@@ -132,8 +190,9 @@ export default function AvailableTreatments() {
                         return (
                           <TableRow hover role="checkbox" tabIndex={-1} key={i}>
                             {columns.map((column) => {
-                              const value: string = row[column.id];
+                              const value: any = row[column.id];
                               return (
+                                column.roles.includes(user?.role_id as number)) && (
                                 <TableCell key={column.id} align={column.align}>
                                   {column.id == "status" ? (
                                     <Chip
@@ -141,6 +200,22 @@ export default function AvailableTreatments() {
                                       variant="outlined"
                                       color={getColor(value)}
                                     />
+                                  ) : column.id == "survey" ? (
+                                    getSurveyType(value)
+                                  ) : column.id == "actions" ? (
+                                    <>
+                                      {row["status"] == "Pendiente" && (
+                                        <>
+                                          <CheckBoxIcon color="success" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                          <CancelIcon color="error" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                        </>
+                                      )}
+                                      {row["status"] == "Aceptada" && (
+                                        <>
+                                          <BlockIcon color="warning" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                        </>
+                                      )}
+                                    </>
                                   ) : (
                                     value
                                   )}

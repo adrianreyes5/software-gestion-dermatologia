@@ -1,11 +1,13 @@
 import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
+import Container from "@mui/material/Container";
 
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { Appointment } from "@/utils/types";
 
+import CssBaseline from "@mui/material/CssBaseline";
 import axios from "../../src/config/interceptor";
 
 type CalendarList = {
@@ -41,23 +43,29 @@ export default function Calendar() {
   };
 
   return (
-    <Box width="1600px" margin="100px auto">
-      <Paper
-        style={{
-          fontFamily: "Roboto",
-          width: "100%",
-          height: 1000,
-        }}
-      >
-        <FullCalendar
-          plugins={[dayGridPlugin]}
-          initialView="dayGridMonth"
-          locale="es"
-          events={appoiments}
-          eventClick={handleDate}
-          height={1000}
-        />
-      </Paper>
-    </Box>
+    <main>
+
+      <CssBaseline />
+      <Container sx={{ py: 10 }} maxWidth="lg">
+        <Box maxWidth="1440px"  sx={{ width: "100%" }} >
+          <Paper
+            style={{
+              fontFamily: "Roboto",
+              width: "100%",
+              padding: 20,
+            }}
+            >
+            <FullCalendar
+              plugins={[dayGridPlugin]}
+              initialView="dayGridMonth"
+              locale="es"
+              events={appoiments}
+              eventClick={handleDate}
+              height={1000}
+              />
+          </Paper>
+        </Box>
+      </Container>
+    </main>
   );
 }

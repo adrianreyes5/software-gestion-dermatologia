@@ -36,7 +36,7 @@ export default function AvailableTreatments() {
   const [selectedDate, setSelectedDate] = React.useState<string>("");
   const [selectedDateFormat, setSelectedDateFormat] =
     React.useState<string>("");
-  const [appointmentType, setAppointmentType] = React.useState("Previa");
+  const [appointmentType, setAppointmentType] = React.useState("Formal");
   const [loading, setLoading] = React.useState(false);
   const [details, setDetails] = React.useState<Treatment>();
   const [protocols, setProtocols] = React.useState([] as string[]);
@@ -181,7 +181,7 @@ export default function AvailableTreatments() {
                   <Select
                     labelId="appointment-type-label"
                     id="appointment-type"
-                    defaultValue="Previa"
+                    defaultValue="Formal"
                     value={appointmentType}
                     label="Tipo de cita *"
                     onChange={handleChangeType}

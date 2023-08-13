@@ -17,12 +17,13 @@ import axios from "../../config/interceptor";
 import { useRouter } from "next/router";
 import { handleError } from "@/utils/response-handler";
 import { User } from "@/utils/types";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const pages = [
   {
     url: "/appointments",
     label: "Citas",
-    adminRole: [2],
+    adminRole: [1, 2],
   },
   {
     url: "/",
@@ -135,7 +136,7 @@ function NavBar() {
                         <Button
                           key={page.label}
                           onClick={() => router.push(page.url)}
-                          sx={{ my: 2, display: "block" }}
+                          sx={{ my: 2, display: "block", px: 2 }}
                         >
                           {page.label}
                         </Button>
@@ -185,8 +186,14 @@ function NavBar() {
 
               <Box sx={{ flexGrow: 0 }}>
                 <Tooltip title="Abrir Menu">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" src="/images/pp.jpg" />
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, width: "45px" }}>
+                    {user && user["image-profile"] ? 
+                      <Avatar alt="Remy Sharp" src={user["image-profile"]} />
+                        : 
+                      <AccountCircleIcon
+                        sx={{ display: "flex", width: "100%", maxWidth: "50px", height: "auto" }}
+                        color="secondary"
+                      />}
                   </IconButton>
                 </Tooltip>
                 <Menu
