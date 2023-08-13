@@ -168,7 +168,8 @@ export default function AvailableTreatments() {
                 ))}
 
                 <Typography variant="body1" paragraph align="justify" mt={2}>
-                  <b>Costo:</b> {details?.cost}$
+                  <b>Costo:</b> $
+                  {appointmentType === "Previa" ? "5" : details?.cost}
                 </Typography>
                 <Typography variant="body1" paragraph align="justify">
                   <b>Duración:</b> {details?.duration} hora(s)
