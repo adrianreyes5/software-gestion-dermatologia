@@ -22,17 +22,17 @@ const pages = [
   {
     url: "/appointments",
     label: "Citas",
-    isAdmin: false,
+    adminRole: [2],
   },
   {
     url: "/",
     label: "Tratamientos",
-    isAdmin: true,
+    adminRole: [1, 2],
   },
   {
     url: "/calendar",
     label: "Calendario",
-    isAdmin: true,
+    adminRole: [1],
   },
 ];
 
@@ -85,8 +85,6 @@ function NavBar() {
     setUser(user);
   }, []);
 
-  console.log(user);
-
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -96,6 +94,8 @@ function NavBar() {
             image="/images/logo.png"
             alt="Logo"
             sx={{ display: { xs: "none", md: "flex" }, mr: 1, width: "80px" }}
+            onClick={() => router.push("/")}
+            style={{ cursor: "pointer" }}
           />
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -130,19 +130,17 @@ function NavBar() {
               {isLoggedIn ? (
                 <div>
                   {pages.map((page) => (
-                    <Link
-                      href={page.url}
-                      sx={{ textDecoration: "none" }}
-                      key={page.label}
-                    >
-                      {!page.isAdmin && (
-                        <MenuItem>
-                          <Typography textAlign="center">
-                            {page.label}
-                          </Typography>
-                        </MenuItem>
+                    <React.Fragment key={page.url}>
+                      {page.adminRole.includes(user?.role_id as number) && (
+                        <Button
+                          key={page.label}
+                          onClick={() => router.push(page.url)}
+                          sx={{ my: 2, display: "block" }}
+                        >
+                          {page.label}
+                        </Button>
                       )}
-                    </Link>
+                    </React.Fragment>
                   ))}
                 </div>
               ) : (
@@ -172,17 +170,7 @@ function NavBar() {
               >
                 {pages.map((page) => (
                   <React.Fragment key={page.url}>
-                    {!page.isAdmin && user?.role_id === 2 && (
-                      <Button
-                        key={page.label}
-                        onClick={() => router.push(page.url)}
-                        sx={{ my: 2, color: "white", display: "block" }}
-                      >
-                        {page.label}
-                      </Button>
-                    )}
-
-                    {page.isAdmin && (
+                    {page.adminRole.includes(user?.role_id as number) && (
                       <Button
                         key={page.label}
                         onClick={() => router.push(page.url)}
