@@ -172,7 +172,8 @@ export default function AvailableTreatments() {
                   {appointmentType === "Previa" ? "5" : details?.cost}
                 </Typography>
                 <Typography variant="body1" paragraph align="justify">
-                  <b>Duración:</b> {details?.duration} hora(s)
+                  <b>Duración:</b>{" "}
+                  {appointmentType === "Previa" ? 1 : details?.duration} hora(s)
                 </Typography>
 
                 <FormControl
