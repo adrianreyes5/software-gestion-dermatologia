@@ -115,7 +115,7 @@ export default function AvailableTreatments() {
     });
 
     setLoading(false);
-    if(response.status === "success") {
+    if (response.status === "success") {
       setTimeout(() => {
         router.push("/appointments");
       }, 2000);
@@ -125,7 +125,10 @@ export default function AvailableTreatments() {
   return (
     <div>
       <Container sx={{ py: 8 }} maxWidth="md">
-        <Button onClick={() => router.back()} sx={{ cursor: "pointer", p: 0, justifyContent: 'start' }}>
+        <Button
+          onClick={() => router.back()}
+          sx={{ cursor: "pointer", p: 0, justifyContent: "start" }}
+        >
           <WestIcon sx={{ fontSize: "35px", marginBottom: "5px" }} />
         </Button>
         <Box my={1} textAlign="center">
@@ -211,7 +214,11 @@ export default function AvailableTreatments() {
                       setOpen={setOpenDateDialog}
                       date={selectedDate}
                       handleHoursSelected={handleHoursSelected}
-                      duration={details?.duration as number}
+                      duration={
+                        appointmentType === "Previa"
+                          ? 1
+                          : (details?.duration as number)
+                      }
                       unavailableDates={unavailableDates as string[]}
                     />
                   </div>
@@ -251,7 +258,7 @@ export default function AvailableTreatments() {
         <SnackBar
           snackbarState={snackbarState}
           setSnackbarState={() => {
-            setSnackbarState((prev) => ({
+            setSnackbarState(prev => ({
               ...prev,
               message: "",
               open: false,
