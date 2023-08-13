@@ -39,6 +39,7 @@ export type User = {
   phone: string;
   role_id: number;
   updated_at?: Date;
+  "image-profile"?: string | null;
 };
 
 export type FormValues = {
@@ -49,3 +50,14 @@ export type FormValues = {
   last_name: string;
   phone: string;
 };
+export interface UserData {
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  address?: string;
+  birthday?: string;
+  email: string;
+  password?: string;
+  confirm_password?: string;
+  "image-profile"?: string | null;
+}
