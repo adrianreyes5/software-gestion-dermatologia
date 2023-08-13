@@ -70,7 +70,7 @@ export default function AvailableTreatments() {
       try {
         const response = await axios.get(`/appointment/${user.id}`); // Replace with your API endpoint
 
-        setAppointments(response.data.data);
+        setAppointments(response.data);
       } catch (error) {
         // Handle the error here
         console.error(error);
@@ -90,6 +90,8 @@ export default function AvailableTreatments() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  console.log(appointments);
 
   return (
     <>
