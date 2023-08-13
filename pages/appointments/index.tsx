@@ -15,7 +15,7 @@ import {
   Chip,
 } from "@mui/material";
 import axios from "../../src/config/interceptor";
-import { Appointment } from "@/utils/types";
+import { Appointment, User } from "@/utils/types";
 
 interface Column {
   id: "patient" | "date" | "status" | "treatment" | "patient";
@@ -59,14 +59,16 @@ export default function AvailableTreatments() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [appointments, setAppointments] = React.useState<Appointment[]>([]);
+  const [user, setUser] = React.useState<User>();
 
   React.useEffect(() => {
+    const user: User = JSON.parse(localStorage.getItem("user") as string);
+
+    setUser(user);
+
     const getData = async () => {
       try {
-        const response = await axios.get("/appointments"); // Replace with your API endpoint
-
-        // Handle the response data here
-        console.log(response.data);
+        const response = await axios.get(`/appointment/${user.id}`); // Replace with your API endpoint
 
         setAppointments(response.data.data);
       } catch (error) {
@@ -93,7 +95,6 @@ export default function AvailableTreatments() {
     <>
       <CssBaseline />
       <main>
-
         <Container sx={{ py: 10 }} maxWidth="md">
           <Box my={4} textAlign="center" mt={0}>
             <Typography variant="h4" className="text-primary">
@@ -119,37 +120,41 @@ export default function AvailableTreatments() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {appointments
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, i) => {
-                      return (
-                        <TableRow hover role="checkbox" tabIndex={-1} key={i}>
-                          {columns.map((column) => {
-                            const value: string = row[column.id];
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                {column.id == "status" ? (
-                                  <Chip
-                                    label={value}
-                                    variant="outlined"
-                                    color={getColor(value)}
-                                  />
-                                ) : (
-                                  value
-                                )}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
+                  {appointments?.length > 0 &&
+                    appointments
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      ?.map((row, i) => {
+                        return (
+                          <TableRow hover role="checkbox" tabIndex={-1} key={i}>
+                            {columns.map((column) => {
+                              const value: string = row[column.id];
+                              return (
+                                <TableCell key={column.id} align={column.align}>
+                                  {column.id == "status" ? (
+                                    <Chip
+                                      label={value}
+                                      variant="outlined"
+                                      color={getColor(value)}
+                                    />
+                                  ) : (
+                                    value
+                                  )}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })}
                 </TableBody>
               </Table>
             </TableContainer>
             <TablePagination
               rowsPerPageOptions={[10, 25, 50]}
               component="div"
-              count={appointments.length}
+              count={appointments?.length || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
