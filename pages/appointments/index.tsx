@@ -110,31 +110,30 @@ export default function AvailableTreatments() {
   const [appointments, setAppointments] = React.useState<Appointment[]>([]);
   const [user, setUser] = React.useState<User>();
 
+  const getData = async () => {
+    try {
+      let url;
+      if(user?.role_id == 2) {
+        url = `/appointment/${user.id}`;      
+      } else {
+        url = `/appointments`;
+      }    
+      const response = await axios.get(url); // Replace with your API endpoint
+      
+      if(response.data.length > 0) {
+        setAppointments(response.data);
+      } else {
+        setAppointments(response?.data?.data);
+      }
+    } catch (error) {
+      // Handle the error here
+      console.error(error);
+    }
+  };
+
   React.useEffect(() => {
     const user: User = JSON.parse(localStorage.getItem("user") as string);
-
     setUser(user);
-
-    const getData = async () => {
-      try {
-        let url;
-        if(user.role_id == 2) {
-          url = `/appointment/${user.id}`;      
-        } else {
-          url = `/appointments`;
-        }    
-        const response = await axios.get(url); // Replace with your API endpoint
-        
-        if(response.data.length > 0) {
-          setAppointments(response.data);
-        } else {
-          setAppointments(response?.data?.data);
-        }
-      } catch (error) {
-        // Handle the error here
-        console.error(error);
-      }
-    };
 
     getData();
   }, []);
@@ -149,6 +148,18 @@ export default function AvailableTreatments() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  const handleAppointmentStatus = async (id: number, status: string) => {
+    try {
+      const response = await axios.put(`/appointment/${id}`, { status: status });
+      if(response.status == 200) {
+        getData();
+      }
+    } catch (error) {
+      // Handle the error here
+      console.error(error);
+    }
+  }
 
   return (
     <>
@@ -205,15 +216,21 @@ export default function AvailableTreatments() {
                                   ) : column.id == "actions" ? (
                                     <>
                                       {row["status"] == "Pendiente" && (
-                                        <>
-                                          <CheckBoxIcon color="success" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                          <CancelIcon color="error" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                        </>
+                                        <Box sx={{ display: "flex" }}>
+                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Aceptada')}>
+                                            <CheckBoxIcon color="success" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                          </Button>
+                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Rechazada')}>
+                                            <CancelIcon color="error" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                          </Button>
+                                        </Box>
                                       )}
                                       {row["status"] == "Aceptada" && (
-                                        <>
-                                          <BlockIcon color="warning" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                        </>
+                                        <Box sx={{ display: "flex" }}>
+                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Cancelada')}>
+                                            <BlockIcon color="warning" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
+                                          </Button>
+                                        </Box>
                                       )}
                                     </>
                                   ) : (
