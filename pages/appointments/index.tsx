@@ -17,12 +17,20 @@ import {
 } from "@mui/material";
 import axios from "../../src/config/interceptor";
 import { Appointment, User } from "@/utils/types";
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CancelIcon from '@mui/icons-material/Cancel';
-import BlockIcon from '@mui/icons-material/Block';
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CancelIcon from "@mui/icons-material/Cancel";
+import BlockIcon from "@mui/icons-material/Block";
+import Link from "next/link";
 
 interface Column {
-  id: "patient" | "date" | "status" | "survey" | "treatment" | "start_time" | "actions";
+  id:
+    | "patient"
+    | "date"
+    | "status"
+    | "survey"
+    | "treatment"
+    | "start_time"
+    | "actions";
   label: string;
   roles: number[];
   minWidth?: number;
@@ -30,17 +38,17 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-  { 
-    id: "treatment", 
-    label: "Procedimiento", 
+  {
+    id: "treatment",
+    label: "Procedimiento",
     roles: [1, 2],
-    minWidth: 150 
+    minWidth: 150,
   },
-  { 
-    id: "patient", 
-    label: "Paciente", 
+  {
+    id: "patient",
+    label: "Paciente",
     roles: [1],
-    minWidth: 150 
+    minWidth: 150,
   },
   {
     id: "date",
@@ -71,7 +79,7 @@ const columns: readonly Column[] = [
     label: "Acciones",
     roles: [1],
     minWidth: 100,
-  }
+  },
 ];
 
 function getColor(value: string) {
@@ -92,16 +100,17 @@ function getSurveyType(value: any) {
 
   const timeDifference = currentDate - targetDate;
   const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000;
-  
-  if (timeDifference >= threeDaysInMillis ) { // > 3 days
+
+  if (timeDifference >= threeDaysInMillis) {
+    // > 3 days
     if (value.results != null) {
       return "Respondida";
     } else {
       return "Disponible";
     }
-  } else  {
+  } else {
     return "Pendiente";
-  } 
+  }
 }
 
 export default function AvailableTreatments() {
@@ -111,16 +120,17 @@ export default function AvailableTreatments() {
   const [user, setUser] = React.useState<User>();
 
   const getData = async () => {
+    const user: User = JSON.parse(localStorage.getItem("user") as string);
     try {
       let url;
-      if(user?.role_id == 2) {
-        url = `/appointment/${user.id}`;      
+      if (user?.role_id == 2) {
+        url = `/appointment/${user.id}`;
       } else {
         url = `/appointments`;
-      }    
+      }
       const response = await axios.get(url); // Replace with your API endpoint
-      
-      if(response.data.length > 0) {
+
+      if (response.data.length > 0) {
         setAppointments(response.data);
       } else {
         setAppointments(response?.data?.data);
@@ -151,15 +161,17 @@ export default function AvailableTreatments() {
 
   const handleAppointmentStatus = async (id: number, status: string) => {
     try {
-      const response = await axios.put(`/appointment/${id}`, { status: status });
-      if(response.status == 200) {
+      const response = await axios.put(`/appointment/${id}`, {
+        status: status,
+      });
+      if (response.status == 200) {
         getData();
       }
     } catch (error) {
       // Handle the error here
       console.error(error);
     }
-  }
+  };
 
   return (
     <>
@@ -177,17 +189,19 @@ export default function AvailableTreatments() {
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow sx={{}}>
-                    {columns.map((column) => (
-                      column.roles.includes(user?.role_id as number)) && (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        className="bg-light text-primary"
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        <b>{column.label}</b>
-                      </TableCell>
-                    ))}
+                    {columns.map(
+                      (column) =>
+                        column.roles.includes(user?.role_id as number) && (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            className="bg-light text-primary"
+                            style={{ minWidth: column.minWidth }}
+                          >
+                            <b>{column.label}</b>
+                          </TableCell>
+                        )
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -203,40 +217,114 @@ export default function AvailableTreatments() {
                             {columns.map((column) => {
                               const value: any = row[column.id];
                               return (
-                                column.roles.includes(user?.role_id as number)) && (
-                                <TableCell key={column.id} align={column.align}>
-                                  {column.id == "status" ? (
-                                    <Chip
-                                      label={value}
-                                      variant="outlined"
-                                      color={getColor(value)}
-                                    />
-                                  ) : column.id == "survey" ? (
-                                    getSurveyType(value)
-                                  ) : column.id == "actions" ? (
-                                    <>
-                                      {row["status"] == "Pendiente" && (
-                                        <Box sx={{ display: "flex" }}>
-                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Aceptada')}>
-                                            <CheckBoxIcon color="success" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                          </Button>
-                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Rechazada')}>
-                                            <CancelIcon color="error" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                          </Button>
-                                        </Box>
-                                      )}
-                                      {row["status"] == "Aceptada" && (
-                                        <Box sx={{ display: "flex" }}>
-                                          <Button sx={{minWidth: "0px", p: 0, paddingRight: "5px"}} onClick={() => handleAppointmentStatus(row['id'], 'Cancelada')}>
-                                            <BlockIcon color="warning" sx={{ cursor: "pointer", width: "30px", height: "30px" }} />
-                                          </Button>
-                                        </Box>
-                                      )}
-                                    </>
-                                  ) : (
-                                    value
-                                  )}
-                                </TableCell>
+                                column.roles.includes(
+                                  user?.role_id as number
+                                ) && (
+                                  <TableCell
+                                    key={column.id}
+                                    align={column.align}
+                                  >
+                                    {column.id == "status" ? (
+                                      <Chip
+                                        label={value}
+                                        variant="outlined"
+                                        color={getColor(value)}
+                                      />
+                                    ) : column.id == "survey" ? (
+                                      <>
+                                        {getSurveyType(value) ===
+                                        "Disponible" ? (
+                                          <Link
+                                            href={`/survey/${row.survey.id}`}
+                                          >
+                                            Disponible
+                                          </Link>
+                                        ) : (
+                                          getSurveyType(value)
+                                        )}
+                                      </>
+                                    ) : column.id == "actions" ? (
+                                      <>
+                                        {row["status"] == "Pendiente" && (
+                                          <Box sx={{ display: "flex" }}>
+                                            <Button
+                                              sx={{
+                                                minWidth: "0px",
+                                                p: 0,
+                                                paddingRight: "5px",
+                                              }}
+                                              onClick={() =>
+                                                handleAppointmentStatus(
+                                                  row["id"],
+                                                  "Aceptada"
+                                                )
+                                              }
+                                            >
+                                              <CheckBoxIcon
+                                                color="success"
+                                                sx={{
+                                                  cursor: "pointer",
+                                                  width: "30px",
+                                                  height: "30px",
+                                                }}
+                                              />
+                                            </Button>
+                                            <Button
+                                              sx={{
+                                                minWidth: "0px",
+                                                p: 0,
+                                                paddingRight: "5px",
+                                              }}
+                                              onClick={() =>
+                                                handleAppointmentStatus(
+                                                  row["id"],
+                                                  "Rechazada"
+                                                )
+                                              }
+                                            >
+                                              <CancelIcon
+                                                color="error"
+                                                sx={{
+                                                  cursor: "pointer",
+                                                  width: "30px",
+                                                  height: "30px",
+                                                }}
+                                              />
+                                            </Button>
+                                          </Box>
+                                        )}
+                                        {row["status"] == "Aceptada" && (
+                                          <Box sx={{ display: "flex" }}>
+                                            <Button
+                                              sx={{
+                                                minWidth: "0px",
+                                                p: 0,
+                                                paddingRight: "5px",
+                                              }}
+                                              onClick={() =>
+                                                handleAppointmentStatus(
+                                                  row["id"],
+                                                  "Cancelada"
+                                                )
+                                              }
+                                            >
+                                              <BlockIcon
+                                                color="warning"
+                                                sx={{
+                                                  cursor: "pointer",
+                                                  width: "30px",
+                                                  height: "30px",
+                                                }}
+                                              />
+                                            </Button>
+                                          </Box>
+                                        )}
+                                      </>
+                                    ) : (
+                                      value
+                                    )}
+                                  </TableCell>
+                                )
                               );
                             })}
                           </TableRow>
