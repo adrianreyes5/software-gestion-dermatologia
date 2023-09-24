@@ -26,7 +26,7 @@ export type Appointment = {
   status: string;
   treatment: string;
   type?: string;
-  survey: string | object;
+  survey:any;
   actions: string;
 };
 
