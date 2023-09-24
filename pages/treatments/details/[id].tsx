@@ -56,6 +56,7 @@ export default function AvailableTreatments() {
       try {
         const response = await axios.get(`/treatments/${id}`);
         const data: Treatment = response.data;
+        console.log(data)
 
         setProtocols(data.protocols.split("-"));
         setDetails(data);
@@ -163,7 +164,7 @@ export default function AvailableTreatments() {
                     key={index}
                     sx={{ marginBottom: "0px", marginTop: "5px" }}
                   >
-                    - {protocol}
+                    {protocol != "" ? `- ${protocol}` : ""}
                   </Typography>
                 ))}
 

@@ -35,6 +35,11 @@ const pages = [
     label: "Calendario",
     adminRole: [1],
   },
+  {
+    url: "/inventory",
+    label: "Inventario",
+    adminRole: [1],
+  },
 ];
 
 function NavBar() {

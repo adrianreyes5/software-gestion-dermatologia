@@ -6,14 +6,14 @@ export type MessageResponse = {
 
 export type Treatment = {
   "cost": number;
-  "created_at": Date;
+  "created_at"?: Date;
   "description": string;
   "duration": number;
-  "id": number;
+  "id"?: number;
   "image-url": string;
   "name": string;
   "protocols": string;
-  "updated_at": Date;
+  "updated_at"?: Date;
 };
 
 export type Appointment = {
@@ -63,3 +63,10 @@ export interface UserData {
   confirm_password?: string;
   "image-profile"?: string | null;
 }
+
+export type Item = {
+  id: number;
+  name: string;
+  quantity: number;
+  actions: string;
+};

@@ -8,14 +8,18 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SnackBar from "@/components/snackbar";
 import { 
   Box, 
   TextField,
+  Tooltip
 } from "@mui/material";
 
-// styles
 import axios from "@/config/interceptor";
-import { Treatment, User } from "@/utils/types";
+import { Treatment, User, MessageResponse } from "@/utils/types";
 import { useRouter } from "next/router";
 
 export default function AvailableTreatments() {
@@ -23,6 +27,11 @@ export default function AvailableTreatments() {
   const [filter, setFilter] = React.useState<Treatment[]>([]);
   const [userData, setUserData] = React.useState<null | User>(null);
   const router = useRouter();
+  const [snackbarState, setSnackbarState] = React.useState<MessageResponse>({
+      message: "",
+      open: false,
+      type: "success",
+  });
   
   React.useEffect(() => {
     const getData = async () => {
@@ -59,11 +68,33 @@ export default function AvailableTreatments() {
     }
   };
 
+  const handleDelete = async (id: any) => {
+
+    try {
+      const response = await axios.delete(`/treatments/${id}`); 
+
+      if(response.status == 200 ) {
+        setSnackbarState({
+          open: true,
+          type: "success",
+          message: "Eliminado exitosamente",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
+    } catch (error) {
+      // Handle the error here
+      console.error(error);
+    }
+  };
+
+
   return (
     <>
       <CssBaseline />
 
-      <main>
+      <main style={{position: "relative"}}>
         {/* Hero unit */}
         <Container sx={{ py: 10 }} maxWidth="md">
           <Box mb={4} textAlign="center">
@@ -117,31 +148,60 @@ export default function AvailableTreatments() {
                       {treatment.description.substring(0, 60) + "..."}
                     </Typography>
                   </CardContent>
-                  <CardActions sx={{ padding: "0 15px" }}>
-                    <Button
-                      size="small"
-                      color="primary"
-                      variant="contained"
-                      onClick={() => router.push(`/treatments/details/${treatment.id}`)}
-                    >
-                      View
-                    </Button>
-                    {userData && (userData.role_id) == 1 && (
-                    <Button
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                      onClick={() => router.push(`/treatments/edit/${treatment.id}`)}
-                    >
-                      Edit
-                    </Button>
-                    )}
+                  <CardActions sx={{display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ padding: "0 8px" }}>
+                      <Button
+                        size="small"
+                        color="primary"
+                        variant="contained"
+                        onClick={() => router.push(`/treatments/details/${treatment.id}`)}
+                        sx={{ marginRight: "10px" }}
+                      >
+                        View
+                      </Button>
+                      {userData && (userData.role_id) == 1 && (
+                      <Button
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        onClick={() => router.push(`/treatments/edit/${treatment.id}`)}
+                      >
+                        Edit
+                      </Button>
+                      )}
+                    </Box>
+                    <Box>
+                      <Button
+                        size="small"
+                        sx={{ padding: "5px 6px", minWidth: "30px" }}
+                        onClick={() => handleDelete(treatment.id)}
+                      >
+                        <DeleteIcon color="error" />
+                      </Button>
+                    </Box>
                   </CardActions>
                 </Card>
               </Grid>
             ))}
           </Grid>
         </Container>
+        <Tooltip title="Nuevo tratamiento">
+          <Fab color="primary" aria-label="add" sx={{ position: "fixed", bottom: "4%", right: "3%" }} onClick={() => router.push(`/treatments/create/`)}>
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        {snackbarState.open && (
+          <SnackBar
+            snackbarState={snackbarState}
+            setSnackbarState={() => {
+              setSnackbarState((prev) => ({
+                  ...prev,
+                  message: "",
+                  open: false,
+              }));
+            }}
+          />
+        )}
       </main>
     </>
   );
