@@ -20,6 +20,8 @@ import axios from "../../src/config/interceptor";
 import { Item, User, MessageResponse } from "@/utils/types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -86,6 +88,14 @@ export default function AvailableTreatments() {
     open: false,
     type: "success",
   });
+  const [showEdit, setShowEdit] = React.useState<number | null>(null);
+  const [editValues, setEditValues] = React.useState<{
+    quantity: number;
+    name: string;
+  }>({
+    quantity: 0,
+    name: "",
+  });
 
   const {
     register,
@@ -137,24 +147,59 @@ export default function AvailableTreatments() {
     setPage(0);
   };
 
-  const handleItemsActions = async (id: number, action: string) => {
-    console.log(id, action);
-
+  const handleItemsActions = async (
+    id: number,
+    action: string,
+    columName?: string,
+    value?: number
+  ) => {
     try {
-        if( action == "Delete") {
-            const response = await axios.delete(`/inventory/${id}`);
-            if(response.status == 200) {
-                setSnackbarState({
-                    open: true,
-                    type: "success",
-                    message: "Eliminado exitosamente",
-                });
-                getData();
-            }
+      if (action == "Delete") {
+        const response = await axios.delete(`/inventory/${id}`);
+        if (response.status == 200) {
+          setSnackbarState({
+            open: true,
+            type: "success",
+            message: "Eliminado exitosamente",
+          });
+          getData();
         }
+      }
+
+      if (action === "Edit") {
+        setShowEdit(id);
+
+        setEditValues({
+          name: columName as string,
+          quantity: value as number,
+        });
+      }
     } catch (error) {
       // Handle the error here
       console.error(error);
+    }
+  };
+
+  const handleEdit = async (id: number) => {
+    const response = await axios.put(`/inventory/${id}`, {
+      name: editValues.name,
+      quantity: editValues.quantity,
+    });
+
+    if (response.status == 200) {
+      setSnackbarState({
+        open: true,
+        type: "success",
+        message: "Editado exitosamente",
+      });
+      getData();
+
+      setShowEdit(null);
+
+      setEditValues({
+        name: "",
+        quantity: 0,
+      });
     }
   };
 
@@ -162,30 +207,29 @@ export default function AvailableTreatments() {
     setLoading(true);
 
     try {
-        const response = await axios.post(`/inventory`, formData);
-        if (handleError(response.status)) {
-            throw new Error(response.data?.Error);
-        }
+      const response = await axios.post(`/inventory`, formData);
+      if (handleError(response.status)) {
+        throw new Error(response.data?.Error);
+      }
 
-        const { data } = response;
-        if(data.id) {
-            setSnackbarState({
-                open: true,
-                type: "success",
-                message: "Creado exitosamente",
-            });
-            getData();
-        }
-
-    } catch (error: any) {
+      const { data } = response;
+      if (data.id) {
         setSnackbarState({
-            open: true,
-            type: "error",
-            message: error?.message as string,
+          open: true,
+          type: "success",
+          message: "Creado exitosamente",
         });
+        getData();
+      }
+    } catch (error: any) {
+      setSnackbarState({
+        open: true,
+        type: "error",
+        message: error?.message as string,
+      });
     } finally {
-        setLoading(false);
-        setOpen(false);
+      setLoading(false);
+      setOpen(false);
     }
   };
 
@@ -232,6 +276,7 @@ export default function AvailableTreatments() {
                           <TableRow hover role="checkbox" tabIndex={-1} key={i}>
                             {columns.map((column) => {
                               const value: any = row[column.id];
+
                               return (
                                 column.roles.includes(
                                   user?.role_id as number
@@ -248,21 +293,55 @@ export default function AvailableTreatments() {
                                             p: 0,
                                             paddingRight: "5px",
                                           }}
-                                          onClick={() =>
-                                            handleItemsActions(
-                                              row["id"],
-                                              "Edit"
-                                            )
-                                          }
                                         >
-                                          <EditIcon
-                                            sx={{
-                                              cursor: "pointer",
-                                              width: "30px",
-                                              height: "30px",
-                                              color: "text.primary",
-                                            }}
-                                          />
+                                          {showEdit && showEdit === row.id ? (
+                                            <>
+                                              <Tooltip title="Cancelar">
+                                                <CancelIcon
+                                                  sx={{
+                                                    cursor: "pointer",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    color: "text.primary",
+                                                  }}
+                                                  onClick={() => {
+                                                    setShowEdit(null);
+                                                  }}
+                                                />
+                                              </Tooltip>
+
+                                              <Tooltip title="Editar">
+                                                <CheckIcon
+                                                  sx={{
+                                                    cursor: "pointer",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    color: "text.primary",
+                                                  }}
+                                                  onClick={() => {
+                                                    handleEdit(row.id);
+                                                  }}
+                                                />
+                                              </Tooltip>
+                                            </>
+                                          ) : (
+                                            <EditIcon
+                                              sx={{
+                                                cursor: "pointer",
+                                                width: "30px",
+                                                height: "30px",
+                                                color: "text.primary",
+                                              }}
+                                              onClick={() =>
+                                                handleItemsActions(
+                                                  row["id"],
+                                                  "Edit",
+                                                  row.name,
+                                                  row.quantity
+                                                )
+                                              }
+                                            />
+                                          )}
                                         </Button>
                                         <Button
                                           sx={{
@@ -288,7 +367,43 @@ export default function AvailableTreatments() {
                                         </Button>
                                       </Box>
                                     ) : (
-                                      value
+                                      <>
+                                        {showEdit && showEdit === row.id ? (
+                                          <>
+                                            <TextField
+                                              autoFocus
+                                              margin="normal"
+                                              id={
+                                                (editValues[
+                                                  column.id
+                                                ] as string) || ""
+                                              }
+                                              label={
+                                                column.id === "name"
+                                                  ? "Nombre"
+                                                  : "Cantidad"
+                                              }
+                                              type={
+                                                column.id === "name"
+                                                  ? "text"
+                                                  : "number"
+                                              }
+                                              variant="outlined"
+                                              size="small"
+                                              value={editValues[column.id]}
+                                              sx={{ marginRight: "10px" }}
+                                              onChange={(e) => {
+                                                setEditValues((prev) => ({
+                                                  ...prev,
+                                                  [column.id]: e.target.value,
+                                                }));
+                                              }}
+                                            />
+                                          </>
+                                        ) : (
+                                          <>{value}</>
+                                        )}
+                                      </>
                                     )}
                                   </TableCell>
                                 )
@@ -336,7 +451,7 @@ export default function AvailableTreatments() {
                     {...register("quantity")}
                   />
                 </DialogContent>
-                <DialogActions sx={{padding: "0 24px 20px"}}>
+                <DialogActions sx={{ padding: "0 24px 20px" }}>
                   <Button onClick={handleClose}>Cancelar</Button>
                   {loading ? (
                     <LoadingButton sx={{ width: "fit-content" }} />
