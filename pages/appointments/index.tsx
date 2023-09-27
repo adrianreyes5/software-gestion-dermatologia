@@ -94,25 +94,6 @@ function getColor(value: string) {
   }
 }
 
-function getSurveyType(value: any) {
-  const targetDate: any = new Date(value.created_at);
-  const currentDate: any = new Date();
-
-  const timeDifference = currentDate - targetDate;
-  const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000;
-
-  if (timeDifference >= threeDaysInMillis) {
-    // > 3 days
-    if (value.results != null) {
-      return "Respondida";
-    } else {
-      return "Disponible";
-    }
-  } else {
-    return "Pendiente";
-  }
-}
-
 export default function AvailableTreatments() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -232,15 +213,17 @@ export default function AvailableTreatments() {
                                       />
                                     ) : column.id == "survey" ? (
                                       <>
-                                        {getSurveyType(value) ===
+                                        {value.status ===
                                         "Disponible" ? (
                                           <Link
                                             href={`/survey/${row.survey.id}`}
                                           >
-                                            Disponible
+                                            <Button variant="contained" color="success" size="small">
+                                              Disponible
+                                            </Button>
                                           </Link>
                                         ) : (
-                                          getSurveyType(value)
+                                          value.status
                                         )}
                                       </>
                                     ) : column.id == "actions" ? (

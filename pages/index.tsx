@@ -170,15 +170,17 @@ export default function AvailableTreatments() {
                       </Button>
                       )}
                     </Box>
-                    <Box>
-                      <Button
-                        size="small"
-                        sx={{ padding: "5px 6px", minWidth: "30px" }}
-                        onClick={() => handleDelete(treatment.id)}
-                      >
-                        <DeleteIcon color="error" />
-                      </Button>
-                    </Box>
+                    {userData && (userData.role_id) == 1 && (
+                      <Box>
+                        <Button
+                          size="small"
+                          sx={{ padding: "5px 6px", minWidth: "30px" }}
+                          onClick={() => handleDelete(treatment.id)}
+                        >
+                          <DeleteIcon color="error" />
+                        </Button>
+                      </Box>
+                    )}
                   </CardActions>
                 </Card>
               </Grid>
